@@ -2682,6 +2682,273 @@ function NeverZen.new(config)
 				};
 			end;
 
+			function SectionSignal:AddInput(config)
+				config = config or {};
+				config.Name = config.Name or "Input";
+				config.Default = config.Default or "";
+				config.Placeholder = config.Placeholder or "Type here...";
+				config.ClearTextOnFocus = config.ClearTextOnFocus or false;
+				config.Callback = config.Callback or function() end;
+				config.FireOnEnter = config.FireOnEnter or false;
+				config.FireOnLostFocus = config.FireOnLostFocus or false;
+				config.Numeric = config.Numeric or false;
+				config.MaxLength = config.MaxLength or 100;
+
+				local Input = Instance.new("Frame");
+				local Label = Instance.new("TextLabel");
+				local inputFrame = Instance.new("Frame");
+				local UICorner = Instance.new("UICorner");
+				local UIStroke = Instance.new("UIStroke");
+				local textBox = Instance.new("TextBox");
+				local UICorner_2 = Instance.new("UICorner");
+
+				table.insert(itemForSearch, {
+					Frame = Input,
+					Name = config.Name
+				});
+
+				Input.Name = NeverZen:RandomString();
+				Input.Parent = Section;
+				Input.BackgroundColor3 = Color3.fromRGB(255, 255, 255);
+				Input.BackgroundTransparency = 1.000;
+				Input.BorderColor3 = Color3.fromRGB(0, 0, 0);
+				Input.BorderSizePixel = 0;
+				Input.Size = UDim2.new(1, -5, 0, 25);
+
+				Label.Name = NeverZen:RandomString();
+				Label.Parent = Input;
+				Label.AnchorPoint = Vector2.new(0, 0.5);
+				Label.BackgroundColor3 = Color3.fromRGB(255, 255, 255);
+				Label.BackgroundTransparency = 1.000;
+				Label.BorderColor3 = Color3.fromRGB(0, 0, 0);
+				Label.BorderSizePixel = 0;
+				Label.Position = UDim2.new(0, 5, 0.5, 0);
+				Label.Size = UDim2.new(0, 80, 0.649999976, 0);
+				Label.Font = Enum.Font.GothamMedium;
+				Label.Text = config.Name;
+				Label.TextColor3 = Color3.fromRGB(255, 255, 255);
+				Label.TextSize = 14.000;
+				Label.TextTransparency = 0.250;
+				Label.TextXAlignment = Enum.TextXAlignment.Left;
+
+				inputFrame.Name = NeverZen:RandomString();
+				inputFrame.Parent = Input;
+				inputFrame.AnchorPoint = Vector2.new(1, 0.5);
+				inputFrame.BackgroundColor3 = NeverZen.Theme.BackgroundColor;
+				inputFrame.BorderColor3 = Color3.fromRGB(0, 0, 0);
+				inputFrame.BorderSizePixel = 0;
+				inputFrame.Position = UDim2.new(1, -3, 0.5, 0);
+				inputFrame.Size = UDim2.new(1, -85, 0, 15);
+
+				UICorner.CornerRadius = UDim.new(0, 4);
+				UICorner.Parent = inputFrame;
+
+				UIStroke.Color = NeverZen.Theme.StrokeColor;
+				UIStroke.Parent = inputFrame;
+
+				textBox.Name = NeverZen:RandomString();
+				textBox.Parent = inputFrame;
+				textBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255);
+				textBox.BackgroundTransparency = 1.000;
+				textBox.BorderColor3 = Color3.fromRGB(0, 0, 0);
+				textBox.BorderSizePixel = 0;
+				textBox.Position = UDim2.new(0, 2, 0, 0);
+				textBox.Size = UDim2.new(1, -4, 1, 0);
+				textBox.Font = Enum.Font.GothamMedium;
+				textBox.Text = config.Default;
+				textBox.TextColor3 = Color3.fromRGB(255, 255, 255);
+				textBox.TextSize = 12.000;
+				textBox.TextTransparency = 0.250;
+				textBox.TextXAlignment = Enum.TextXAlignment.Left;
+				textBox.PlaceholderText = config.Placeholder;
+				textBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 150);
+				textBox.ClearTextOnFocus = config.ClearTextOnFocus;
+				textBox.MaxVisibleGraphemes = config.MaxLength;
+
+				-- Input validation
+				if config.Numeric then
+					textBox.Text = tostring(config.Default);
+					textBox:GetPropertyChangedSignal("Text"):Connect(function()
+						local text = textBox.Text
+						local filteredText = ""
+						
+						-- Allow numbers, decimal point, and negative sign
+						for i = 1, #text do
+							local char = text:sub(i, i)
+							if char:match("[0-9]") or char == "." or (char == "-" and i == 1) then
+								filteredText = filteredText .. char
+							end
+						end
+						
+						-- Only update if different
+						if filteredText ~= text then
+							textBox.Text = filteredText
+						end
+					end)
+				end
+
+				UICorner_2.CornerRadius = UDim.new(0, 3);
+				UICorner_2.Parent = textBox;
+
+				-- Function to fire callback
+				local function fireCallback()
+					if config.Numeric then
+						local numValue = tonumber(textBox.Text) or 0
+						config.Callback(numValue, config)
+					else
+						config.Callback(textBox.Text, config)
+					end
+				end
+
+				-- Focus events
+				local isFocused = false
+				
+				textBox.Focused:Connect(function()
+					isFocused = true
+					
+					TweenService:Create(inputFrame, TweenInfo.new(0.2), {
+						BackgroundColor3 = NeverZen.Theme.BackgroundColor2
+					}):Play()
+					
+					TweenService:Create(UIStroke, TweenInfo.new(0.2), {
+						Color = NeverZen.Theme.Hightlight
+					}):Play()
+					
+					TweenService:Create(textBox, TweenInfo.new(0.2), {
+						TextTransparency = 0.1
+					}):Play()
+				end)
+				
+				textBox.FocusLost:Connect(function(enterPressed)
+					isFocused = false
+					
+					TweenService:Create(inputFrame, TweenInfo.new(0.2), {
+						BackgroundColor3 = NeverZen.Theme.BackgroundColor
+					}):Play()
+					
+					TweenService:Create(UIStroke, TweenInfo.new(0.2), {
+						Color = NeverZen.Theme.StrokeColor
+					}):Play()
+					
+					TweenService:Create(textBox, TweenInfo.new(0.2), {
+						TextTransparency = 0.250
+					}):Play()
+					
+					-- Fire callback based on settings
+					if config.FireOnLostFocus or (enterPressed and config.FireOnEnter) then
+						fireCallback()
+					end
+				end)
+
+				-- Real-time text change callback
+				if not config.Numeric then  -- For numeric we already have validation handler
+					textBox:GetPropertyChangedSignal("Text"):Connect(function()
+						if not config.FireOnLostFocus and not config.FireOnEnter then
+							fireCallback()
+						end
+					end)
+				else
+					-- For numeric input, we need to also fire callback on text change if real-time is enabled
+					if not config.FireOnLostFocus and not config.FireOnEnter then
+						textBox:GetPropertyChangedSignal("Text"):Connect(function()
+							fireCallback()
+						end)
+					end
+				end
+
+				-- Enter key support
+				textBox.FocusLost:Connect(function(enterPressed)
+					if enterPressed and config.FireOnEnter then
+						fireCallback()
+					end
+				end)
+
+				return {
+					SetValue = function(self, value)
+						textBox.Text = tostring(value)
+						if not config.FireOnLostFocus and not config.FireOnEnter then
+							fireCallback()
+						end
+					end,
+					
+					GetValue = function(self)
+						if config.Numeric then
+							return tonumber(textBox.Text) or 0
+						else
+							return textBox.Text
+						end
+					end,
+					
+					SetPlaceholder = function(self, placeholder)
+						config.Placeholder = placeholder
+						textBox.PlaceholderText = placeholder
+					end,
+					
+					Clear = function(self)
+						textBox.Text = ""
+					end,
+					
+					Focus = function(self)
+						textBox:CaptureFocus()
+					end,
+					
+					SetLabel = function(self, newLabel)
+						config.Name = newLabel
+						Label.Text = newLabel
+					end,
+					
+					SetMaxLength = function(self, maxLength)
+						config.MaxLength = maxLength
+						textBox.MaxVisibleGraphemes = maxLength
+					end,
+					
+					SetNumeric = function(self, isNumeric)
+						config.Numeric = isNumeric
+						if isNumeric then
+							local currentText = textBox.Text
+							local filteredText = ""
+							for i = 1, #currentText do
+								local char = currentText:sub(i, i)
+								if char:match("[0-9]") or char == "." or (char == "-" and i == 1) then
+									filteredText = filteredText .. char
+								end
+							end
+							textBox.Text = filteredText
+						end
+					end,
+					
+					Disable = function(self)
+						textBox.TextEditable = false
+						textBox.ClearTextOnFocus = false
+						TweenService:Create(textBox, TweenInfo.new(0.2), {
+							TextTransparency = 0.5
+						}):Play()
+						TweenService:Create(Label, TweenInfo.new(0.2), {
+							TextTransparency = 0.5
+						}):Play()
+					end,
+					
+					Enable = function(self)
+						textBox.TextEditable = true
+						textBox.ClearTextOnFocus = config.ClearTextOnFocus
+						TweenService:Create(textBox, TweenInfo.new(0.2), {
+							TextTransparency = 0.250
+						}):Play()
+						TweenService:Create(Label, TweenInfo.new(0.2), {
+							TextTransparency = 0.250
+						}):Play()
+					end,
+					
+					Visible = function(self, value)
+						Input.Visible = value
+					end,
+					
+					Fire = config.Callback,
+					
+					FireCallback = fireCallback
+				};
+			end;
+
 			function SectionSignal:AddDropdown(config)
 				config = config or {};
 				config.Name = config.Name or "Dropdown";
