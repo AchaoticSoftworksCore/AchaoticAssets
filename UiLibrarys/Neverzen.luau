@@ -2045,6 +2045,50 @@ function NeverZen.new(config)
 				}):Play()
 			end)
 
+			function SectionSignal:AddDivider(config)
+				config = config or {};
+				config.Color = config.Color or NeverZen.Theme.LineColor;
+				config.Height = config.Height or 1;
+
+				local Divider = Instance.new("Frame");
+				local UICorner = Instance.new("UICorner");
+
+				table.insert(itemForSearch,{
+					Frame = Divider,
+					Name = ""
+				});
+
+				Divider.Name = NeverZen:RandomString();
+				Divider.Parent = Section;
+				Divider.BackgroundColor3 = config.Color;
+				Divider.BorderColor3 = Color3.fromRGB(0, 0, 0);
+				Divider.BorderSizePixel = 0;
+				Divider.Size = UDim2.new(1, -10, 0, config.Height);
+
+				UICorner.CornerRadius = UDim.new(0, 2);
+				UICorner.Parent = Divider;
+
+				return {
+					SetColor = function(self, newColor)
+						config.Color = newColor;
+						Divider.BackgroundColor3 = newColor;
+					end,
+					
+					SetHeight = function(self, newHeight)
+						config.Height = newHeight;
+						Divider.Size = UDim2.new(1, -10, 0, newHeight);
+					end,
+					
+					Visible = function(self, value)
+						Divider.Visible = value;
+					end,
+					
+					Destroy = function(self)
+						Divider:Destroy();
+					end
+				};
+			end;
+
 			function SectionSignal:AddToggle(config)
 				config = config or {};
 				config.Default = config.Default or false;
