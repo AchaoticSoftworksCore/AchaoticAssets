@@ -2549,6 +2549,174 @@ function NeverZen.new(config)
 				}
 			end
 
+			function SectionSignal:AddKeybind(config)
+				config = config or {};
+				config.Name = config.Name or "Keybind";
+				config.Default = config.Default or nil;
+				config.Callback = config.Callback or function() end;
+
+				local Keys = {
+					One = '1',
+					Two = '2',
+					Three = '3',
+					Four = '4',
+					Five = '5',
+					Six = '6',
+					Seven = '7',
+					Eight = '8',
+					Nine = '9',
+					Zero = '0',
+					['Minus'] = "-",
+					['Plus'] = "+",
+					BackSlash = "\\",
+					Slash = "/",
+					Period = '.',
+					Semicolon = ';',
+					Colon = ":",
+					LeftControl = "LCtrl",
+					RightControl = "RCtrl",
+					LeftShift = "LShift",
+					RightShift = "RShift",
+				};
+
+				local GetItem = function(item)
+					if item then
+						if typeof(item) == 'EnumItem' then
+							return Keys[item.Name] or item.Name;
+						else
+							return Keys[tostring(item)] or string.upper(tostring(item))
+						end;
+					else
+						return 'NONE';
+					end;
+				end;
+
+				local Keybind = Instance.new("Frame")
+				local sys = Instance.new("Frame")
+				local UICorner = Instance.new("UICorner")
+				local value = Instance.new("TextLabel")
+				local UIStroke = Instance.new("UIStroke")
+				local Label = Instance.new("TextLabel")
+
+				table.insert(itemForSearch,{
+					Frame = Keybind,
+					Name = config.Name
+				})
+
+				Keybind.Name = NeverZen:RandomString()
+				Keybind.Parent = Section
+				Keybind.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+				Keybind.BackgroundTransparency = 1.000
+				Keybind.BorderColor3 = Color3.fromRGB(0, 0, 0)
+				Keybind.BorderSizePixel = 0
+				Keybind.Size = UDim2.new(1, -5, 0, 25)
+
+				sys.Name = "sys"
+				sys.Parent = Keybind
+				sys.AnchorPoint = Vector2.new(1, 0.5)
+				sys.BackgroundColor3 = NeverZen.Theme.BackgroundColor
+				sys.BorderColor3 = Color3.fromRGB(0, 0, 0)
+				sys.BorderSizePixel = 0
+				sys.Position = UDim2.new(1, -3, 0.5, 0)
+				sys.Size = UDim2.new(0, 25, 0, 15)
+
+				UICorner.CornerRadius = UDim.new(0, 4)
+				UICorner.Parent = sys
+
+				value.Name = "value"
+				value.Parent = sys
+				value.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+				value.BackgroundTransparency = 1.000
+				value.BorderColor3 = Color3.fromRGB(0, 0, 0)
+				value.BorderSizePixel = 0
+				value.Size = UDim2.new(1, 0, 1, 0)
+				value.Font = Enum.Font.GothamMedium
+				value.Text = GetItem(config.Default)
+				value.TextColor3 = NeverZen.Theme.Hightlight;
+				value.TextSize = 12.000
+				value.TextTransparency = 0.250
+
+				UIStroke.Color = NeverZen.Theme.StrokeColor
+				UIStroke.Parent = sys
+
+				Label.Name = "Label"
+				Label.Parent = Keybind
+				Label.AnchorPoint = Vector2.new(0, 0.5)
+				Label.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+				Label.BackgroundTransparency = 1.000
+				Label.BorderColor3 = Color3.fromRGB(0, 0, 0)
+				Label.BorderSizePixel = 0
+				Label.Position = UDim2.new(0, 5, 0.5, 0)
+				Label.Size = UDim2.new(1, -25, 0.649999976, 0)
+				Label.Font = Enum.Font.GothamMedium
+				Label.Text = config.Name
+				Label.TextColor3 = Color3.fromRGB(255, 255, 255)
+				Label.TextSize = 14.000
+				Label.TextTransparency = 0.250
+				Label.TextXAlignment = Enum.TextXAlignment.Left
+
+				local UpdateScale = function()
+					local BindLabelScale = TextService:GetTextSize(value.Text,value.TextSize,value.Font,Vector2.new(math.huge,math.huge));
+
+					TweenService:Create(sys,TweenInfo.new(0.1),{
+						Size = UDim2.new(0, BindLabelScale.X + 10, 0, 15)
+					}):Play();
+				end;
+
+				UpdateScale();
+
+				local Button = NeverZen:NewInput(Keybind);
+				local IsBinding = false;
+
+				Button.MouseButton1Click:Connect(function()
+					if not Content.Enabled or not Content.Parent then
+						return;
+					end;
+
+					if IsBinding then return; end;
+
+					IsBinding = true;
+
+					value.Text = "...";
+
+					UpdateScale();
+
+					local Selected = nil;
+					while not Selected do
+						local Key = Services.UserInputService.InputBegan:Wait();
+
+						if Key.KeyCode ~= Enum.KeyCode.Unknown then
+							Selected = Key.KeyCode;
+						end;
+					end;
+
+					config.Default = Selected;
+
+					value.Text = GetItem(Selected);
+
+					UpdateScale();
+
+					IsBinding = false;
+
+					config.Callback(Selected,config);
+				end)
+
+				return {
+					SetValue = function(self,newvalue)
+						config.Default = newvalue;
+						value.Text = GetItem(newvalue);
+
+						UpdateScale();
+
+						config.Callback(newvalue,config);
+					end,
+					Fire = config.Callback,
+					Visible = function(self,value)
+						Keybind.Visible = value;
+					end,
+				};
+			end;
+
 			function SectionSignal:AddInput(config)
 				config = config or {};
 				config.Name = config.Name or "Input";
