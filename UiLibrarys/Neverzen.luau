@@ -2323,11 +2323,10 @@ function NeverZen.new(config)
 				config.Name = config.Name or "Slider"
 				config.Min = config.Min or 0;
 				config.Max = config.Max or 100;
-				config.Default = config.Default or config.Min;
+				config.Default = math.clamp(config.Default or config.Min, config.Min, config.Max);
 				config.Round = config.Round or 0;
 				config.Type = config.Type or "";
 				config.Callback = config.Callback or function() end;
-
 
 				local Slider = Instance.new("Frame")
 				local value = Instance.new("Frame")
@@ -2363,7 +2362,7 @@ function NeverZen.new(config)
 				value.BorderColor3 = Color3.fromRGB(0, 0, 0)
 				value.BorderSizePixel = 0
 				value.Position = UDim2.new(1, -3, 0.5, 0)
-				value.Size = UDim2.new(0, 25, 0, 15)
+				value.Size = UDim2.new(0, 35, 0, 15) -- Increased initial size
 
 				UICorner.CornerRadius = UDim.new(0, 4)
 				UICorner.Parent = value
@@ -2392,7 +2391,7 @@ function NeverZen.new(config)
 				Label.BorderColor3 = Color3.fromRGB(0, 0, 0)
 				Label.BorderSizePixel = 0
 				Label.Position = UDim2.new(0, 5, 0.5, 0)
-				Label.Size = UDim2.new(1, -25, 0.649999976, 0)
+				Label.Size = UDim2.new(1, -40, 0.649999976, 0) -- Adjusted for better spacing
 				Label.Font = Enum.Font.GothamMedium
 				Label.Text = config.Name
 				Label.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -2406,8 +2405,8 @@ function NeverZen.new(config)
 				con.BackgroundColor3 = NeverZen.Theme.BackgroundColor
 				con.BorderColor3 = Color3.fromRGB(0, 0, 0)
 				con.BorderSizePixel = 0
-				con.Position = UDim2.new(1, -32, 0.5, 0)
-				con.Size = UDim2.new(1, -125, 0.200000003, 0)
+				con.Position = UDim2.new(1, -40, 0.5, 0)
+				con.Size = UDim2.new(1, -135, 0.200000003, 0)
 
 				UICorner_2.CornerRadius = UDim.new(1, 0)
 				UICorner_2.Parent = con
@@ -2444,243 +2443,111 @@ function NeverZen.new(config)
 
 				local updateSIZE = function()
 					local test = "2."..string.rep("4",(config.Round or 0) + 1)..tostring(config.Type);
-
-					local scale = TextService:GetTextSize(test,LabelValue.TextSize,LabelValue.Font,Vector2.new(math.huge,math.huge));
-					local scalelab = TextService:GetTextSize(Label.Text,Label.TextSize,Label.Font,Vector2.new(math.huge,math.huge));
-
-					con.Position = UDim2.new(1, -(scale.X + 11), 0.5, 0)
-					con.Size = UDim2.new(1, -(scalelab.X + 55), 0.200000003, 0)
+					
+					local scale = TextService:GetTextSize(test, LabelValue.TextSize, LabelValue.Font, Vector2.new(math.huge, math.huge));
+					local scalelab = TextService:GetTextSize(Label.Text, Label.TextSize, Label.Font, Vector2.new(math.huge, math.huge));
+					
+					value.Size = UDim2.new(0, math.max(scale.X + 10, 35), 0, 15)
+					con.Position = UDim2.new(1, -(value.AbsoluteSize.X + 8), 0.5, 0)
+					con.Size = UDim2.new(1, -(scalelab.X + value.AbsoluteSize.X + 15), 0.200000003, 0)
 				end;
 
 				updateSIZE()
 
 				local function update(Input)
-					local SizeScale = math.clamp((((Input.Position.X) - con.AbsolutePosition.X) / con.AbsoluteSize.X), 0, 1);
-					local Main = ((config.Max - config.Min) * SizeScale) + config.Min;
-					local Value = NeverZen:Rounding(Main,config.Round);
-					local PositionX = UDim2.fromScale(SizeScale, 1);
-					local normalized = (Value - config.Min) / (config.Max - config.Min);
+					local relativeX = (Input.Position.X - con.AbsolutePosition.X)
+					local SizeScale = math.clamp(relativeX / con.AbsoluteSize.X, 0, 1)
+					local Main = ((config.Max - config.Min) * SizeScale) + config.Min
+					local Value = NeverZen:Rounding(Main, config.Round)
+					
+					-- Ensure value is within bounds
+					Value = math.clamp(Value, config.Min, config.Max)
+					local normalized = (Value - config.Min) / (config.Max - config.Min)
+					normalized = math.clamp(normalized, 0, 1)
 
-					TweenService:Create(block , TweenInfo.new(0.04),{
+					TweenService:Create(block, TweenInfo.new(0.04), {
 						Size = UDim2.new(normalized, 0, 1, 0)
-					}):Play();
+					}):Play()
 
 					LabelValue.Text = tostring(Value)..tostring(config.Type)
-
-					local scale = TextService:GetTextSize(LabelValue.Text,LabelValue.TextSize,LabelValue.Font,Vector2.new(math.huge,math.huge));
-					value.Size = UDim2.new(0, scale.X + 5, 0, 15)
 					updateSIZE()
-
-					config.Callback(Value,config)
-				end;
+					
+					config.Callback(Value, config)
+				end
 
 				con.InputBegan:Connect(function(Input)
-					if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-						IsHold = true
-						update(Input)
+					if Input.UserInputType == Enum.UserInputType.MouseButton1 
+						or Input.UserInputType == Enum.UserInputType.Touch then
+						
+						if Content.Enabled and Content.Parent then
+							IsHold = true
+							update(Input)
+						end
 					end
 				end)
 
 				con.InputEnded:Connect(function(Input)
-					if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+					if Input.UserInputType == Enum.UserInputType.MouseButton1 
+						or Input.UserInputType == Enum.UserInputType.Touch then
+						
 						IsHold = false
 					end
 				end)
 
 				Services.UserInputService.InputChanged:Connect(function(Input)
-					if IsHold then
-						if (Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch)  then
-							update(Input)
+					if IsHold and Content.Enabled and Content.Parent then
+						if Input.UserInputType == Enum.UserInputType.MouseMovement 
+							or Input.UserInputType == Enum.UserInputType.Touch then
+							
+							if Services.UserInputService.TouchEnabled then
+								local touchPos = Input.Position
+								local relativePos = Vector2.new(
+									touchPos.X - con.AbsolutePosition.X,
+									touchPos.Y - con.AbsolutePosition.Y
+								)
+								
+								-- Allow dragging even if slightly outside bounds
+								if relativePos.X >= -20 and relativePos.X <= con.AbsoluteSize.X + 20
+									and relativePos.Y >= -20 and relativePos.Y <= con.AbsoluteSize.Y + 20 then
+									update(Input)
+								else
+									IsHold = false
+								end
+							else
+								update(Input)
+							end
 						end
-
-						if Services.UserInputService.TouchEnabled then
-							if not NeverZen:IsMouseOverFrame(Slider) then
-								IsHold = false
-							end;
-						end;
 					end
-				end);
-
-				return {
-					SetValue = function(self,newvalue)
-						config.Default = newvalue;
-						block.Size = UDim2.new(((config.Default - config.Min) / (config.Max - config.Min)), 0, 1, 0)
-						LabelValue.Text = tostring(config.Default)..tostring(config.Type)
-					end,
-					Fire = config.Callback,
-					Visible = function(self,value)
-						Slider.Visible = value;
-					end,
-				};
-			end;
-
-			function SectionSignal:AddKeybind(config)
-				config = config or {};
-				config.Name = config.Name or "Keybind";
-				config.Default = config.Default or nil;
-				config.Callback = config.Callback or function() end;
-
-				local Keys = {
-					One = '1',
-					Two = '2',
-					Three = '3',
-					Four = '4',
-					Five = '5',
-					Six = '6',
-					Seven = '7',
-					Eight = '8',
-					Nine = '9',
-					Zero = '0',
-					['Minus'] = "-",
-					['Plus'] = "+",
-					BackSlash = "\\",
-					Slash = "/",
-					Period = '.',
-					Semicolon = ';',
-					Colon = ":",
-					LeftControl = "LCtrl",
-					RightControl = "RCtrl",
-					LeftShift = "LShift",
-					RightShift = "RShift",
-				};
-
-				local GetItem = function(item)
-					if item then
-						if typeof(item) == 'EnumItem' then
-							return Keys[item.Name] or item.Name;
-						else
-							return Keys[tostring(item)] or string.upper(tostring(item))
-						end;
-					else
-						return 'NONE';
-					end;
-				end;
-
-				local Keybind = Instance.new("Frame")
-				local sys = Instance.new("Frame")
-				local UICorner = Instance.new("UICorner")
-				local value = Instance.new("TextLabel")
-				local UIStroke = Instance.new("UIStroke")
-				local Label = Instance.new("TextLabel")
-
-				table.insert(itemForSearch,{
-					Frame = Keybind,
-					Name = config.Name
-				})
-
-				Keybind.Name = NeverZen:RandomString()
-				Keybind.Parent = Section
-				Keybind.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-				Keybind.BackgroundTransparency = 1.000
-				Keybind.BorderColor3 = Color3.fromRGB(0, 0, 0)
-				Keybind.BorderSizePixel = 0
-				Keybind.Size = UDim2.new(1, -5, 0, 25)
-
-				sys.Name = "sys"
-				sys.Parent = Keybind
-				sys.AnchorPoint = Vector2.new(1, 0.5)
-				sys.BackgroundColor3 = NeverZen.Theme.BackgroundColor
-				sys.BorderColor3 = Color3.fromRGB(0, 0, 0)
-				sys.BorderSizePixel = 0
-				sys.Position = UDim2.new(1, -3, 0.5, 0)
-				sys.Size = UDim2.new(0, 25, 0, 15)
-
-				UICorner.CornerRadius = UDim.new(0, 4)
-				UICorner.Parent = sys
-
-				value.Name = "value"
-				value.Parent = sys
-				value.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-				value.BackgroundTransparency = 1.000
-				value.BorderColor3 = Color3.fromRGB(0, 0, 0)
-				value.BorderSizePixel = 0
-				value.Size = UDim2.new(1, 0, 1, 0)
-				value.Font = Enum.Font.GothamMedium
-				value.Text = GetItem(config.Default)
-				value.TextColor3 = NeverZen.Theme.Hightlight;
-				value.TextSize = 12.000
-				value.TextTransparency = 0.250
-
-				UIStroke.Color = NeverZen.Theme.StrokeColor
-				UIStroke.Parent = sys
-
-				Label.Name = "Label"
-				Label.Parent = Keybind
-				Label.AnchorPoint = Vector2.new(0, 0.5)
-				Label.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-				Label.BackgroundTransparency = 1.000
-				Label.BorderColor3 = Color3.fromRGB(0, 0, 0)
-				Label.BorderSizePixel = 0
-				Label.Position = UDim2.new(0, 5, 0.5, 0)
-				Label.Size = UDim2.new(1, -25, 0.649999976, 0)
-				Label.Font = Enum.Font.GothamMedium
-				Label.Text = config.Name
-				Label.TextColor3 = Color3.fromRGB(255, 255, 255)
-				Label.TextSize = 14.000
-				Label.TextTransparency = 0.250
-				Label.TextXAlignment = Enum.TextXAlignment.Left
-
-				local UpdateScale = function()
-					local BindLabelScale = TextService:GetTextSize(value.Text,value.TextSize,value.Font,Vector2.new(math.huge,math.huge));
-
-					TweenService:Create(sys,TweenInfo.new(0.1),{
-						Size = UDim2.new(0, BindLabelScale.X + 10, 0, 15)
-					}):Play();
-				end;
-
-				UpdateScale();
-
-				local Button = NeverZen:NewInput(Keybind);
-				local IsBinding = false;
-
-				Button.MouseButton1Click:Connect(function()
-					if not Content.Enabled or not Content.Parent then
-						return;
-					end;
-
-					if IsBinding then return; end;
-
-					IsBinding = true;
-
-					value.Text = "...";
-
-					UpdateScale();
-
-					local Selected = nil;
-					while not Selected do
-						local Key = Services.UserInputService.InputBegan:Wait();
-
-						if Key.KeyCode ~= Enum.KeyCode.Unknown then
-							Selected = Key.KeyCode;
-						end;
-					end;
-
-					config.Default = Selected;
-
-					value.Text = GetItem(Selected);
-
-					UpdateScale();
-
-					IsBinding = false;
-
-					config.Callback(Selected,config);
 				end)
 
 				return {
-					SetValue = function(self,newvalue)
-						config.Default = newvalue;
-						value.Text = GetItem(newvalue);
-
-						UpdateScale();
-
-						config.Callback(newvalue,config);
+					SetValue = function(self, newvalue)
+						if not newvalue then return end
+						
+						newvalue = math.clamp(newvalue, config.Min, config.Max)
+						config.Default = newvalue
+						
+						local normalized = (newvalue - config.Min) / (config.Max - config.Min)
+						normalized = math.clamp(normalized, 0, 1)
+						
+						block.Size = UDim2.new(normalized, 0, 1, 0)
+						LabelValue.Text = tostring(newvalue)..tostring(config.Type)
+						updateSIZE()
+						
+						config.Callback(newvalue, config)
 					end,
+					
 					Fire = config.Callback,
-					Visible = function(self,value)
-						Keybind.Visible = value;
+					
+					Visible = function(self, value)
+						Slider.Visible = value
 					end,
-				};
-			end;
+					
+					GetValue = function(self)
+						return config.Default
+					end
+				}
+			end
 
 			function SectionSignal:AddInput(config)
 				config = config or {};
@@ -2946,411 +2813,6 @@ function NeverZen.new(config)
 					Fire = config.Callback,
 					
 					FireCallback = fireCallback
-				};
-			end;
-
-			function SectionSignal:AddColorInput(config)
-				config = config or {};
-				config.Name = config.Name or "Color";
-				config.Default = config.Default or Color3.fromRGB(255, 255, 255);
-				config.Callback = config.Callback or function() end;
-				config.FireOnEnter = config.FireOnEnter or false;
-				config.FireOnLostFocus = config.FireOnLostFocus or true;
-
-				local ColorInput = Instance.new("Frame");
-				local Label = Instance.new("TextLabel");
-				local rgbContainer = Instance.new("Frame");
-				local UIListLayout = Instance.new("UIListLayout");
-				local colorPreview = Instance.new("Frame");
-				local UICornerPreview = Instance.new("UICorner");
-				local UIStrokePreview = Instance.new("UIStroke");
-
-				table.insert(itemForSearch, {
-					Frame = ColorInput,
-					Name = config.Name
-				});
-
-				ColorInput.Name = NeverZen:RandomString();
-				ColorInput.Parent = Section;
-				ColorInput.BackgroundColor3 = Color3.fromRGB(255, 255, 255);
-				ColorInput.BackgroundTransparency = 1.000;
-				ColorInput.BorderColor3 = Color3.fromRGB(0, 0, 0);
-				ColorInput.BorderSizePixel = 0;
-				ColorInput.Size = UDim2.new(1, -5, 0, 25);
-
-				Label.Name = NeverZen:RandomString();
-				Label.Parent = ColorInput;
-				Label.AnchorPoint = Vector2.new(0, 0.5);
-				Label.BackgroundColor3 = Color3.fromRGB(255, 255, 255);
-				Label.BackgroundTransparency = 1.000;
-				Label.BorderColor3 = Color3.fromRGB(0, 0, 0);
-				Label.BorderSizePixel = 0;
-				Label.Position = UDim2.new(0, 5, 0.5, 0);
-				Label.Size = UDim2.new(0, 80, 0.649999976, 0);
-				Label.Font = Enum.Font.GothamMedium;
-				Label.Text = config.Name;
-				Label.TextColor3 = Color3.fromRGB(255, 255, 255);
-				Label.TextSize = 14.000;
-				Label.TextTransparency = 0.250;
-				Label.TextXAlignment = Enum.TextXAlignment.Left;
-
-				-- RGB Container
-				rgbContainer.Name = NeverZen:RandomString();
-				rgbContainer.Parent = ColorInput;
-				rgbContainer.AnchorPoint = Vector2.new(1, 0.5);
-				rgbContainer.BackgroundColor3 = NeverZen.Theme.BackgroundColor;
-				rgbContainer.BorderColor3 = Color3.fromRGB(0, 0, 0);
-				rgbContainer.BorderSizePixel = 0;
-				rgbContainer.Position = UDim2.new(1, -3, 0.5, 0);
-				rgbContainer.Size = UDim2.new(1, -85, 0, 15);
-				rgbContainer.ClipsDescendants = true;
-
-				local UICornerContainer = Instance.new("UICorner");
-				UICornerContainer.CornerRadius = UDim.new(0, 4);
-				UICornerContainer.Parent = rgbContainer;
-
-				local UIStrokeContainer = Instance.new("UIStroke");
-				UIStrokeContainer.Color = NeverZen.Theme.StrokeColor;
-				UIStrokeContainer.Parent = rgbContainer;
-
-				-- Color Preview
-				colorPreview.Name = NeverZen:RandomString();
-				colorPreview.Parent = rgbContainer;
-				colorPreview.AnchorPoint = Vector2.new(0, 0.5);
-				colorPreview.BackgroundColor3 = config.Default;
-				colorPreview.BorderColor3 = Color3.fromRGB(0, 0, 0);
-				colorPreview.BorderSizePixel = 0;
-				colorPreview.Position = UDim2.new(0, 2, 0.5, 0);
-				colorPreview.Size = UDim2.new(0, 25, 1, -4);
-				colorPreview.ZIndex = 5;
-
-				UICornerPreview.CornerRadius = UDim.new(0, 3);
-				UICornerPreview.Parent = colorPreview;
-
-				UIStrokePreview.Color = NeverZen.Theme.StrokeColor2;
-				UIStrokePreview.Parent = colorPreview;
-
-				UIListLayout.Parent = rgbContainer;
-				UIListLayout.FillDirection = Enum.FillDirection.Horizontal;
-				UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder;
-				UIListLayout.Padding = UDim.new(0, 2);
-				UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right;
-				UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center;
-
-				-- Create RGB input function
-				local function createRGBInput(labelText, defaultValue, order)
-					local inputFrame = Instance.new("Frame");
-					local textBox = Instance.new("TextBox");
-					local UICornerInput = Instance.new("UICorner");
-					local UIStrokeInput = Instance.new("UIStroke");
-					local label = Instance.new("TextLabel");
-
-					inputFrame.Name = NeverZen:RandomString();
-					inputFrame.Parent = rgbContainer;
-					inputFrame.LayoutOrder = order;
-					inputFrame.BackgroundColor3 = NeverZen.Theme.BackgroundColor2;
-					inputFrame.Size = UDim2.new(0, 35, 0, 13);
-					inputFrame.ZIndex = 5;
-
-					label.Name = NeverZen:RandomString();
-					label.Parent = inputFrame;
-					label.AnchorPoint = Vector2.new(0, 0.5);
-					label.BackgroundColor3 = Color3.fromRGB(255, 255, 255);
-					label.BackgroundTransparency = 1.000;
-					label.Position = UDim2.new(0, 2, 0.5, 0);
-					label.Size = UDim2.new(0, 8, 0.8, 0);
-					label.Font = Enum.Font.GothamMedium;
-					label.Text = labelText;
-					label.TextColor3 = Color3.fromRGB(255, 255, 255);
-					label.TextSize = 10;
-					label.TextTransparency = 0.250;
-					label.TextXAlignment = Enum.TextXAlignment.Left;
-					label.ZIndex = 6;
-
-					textBox.Name = NeverZen:RandomString();
-					textBox.Parent = inputFrame;
-					textBox.AnchorPoint = Vector2.new(1, 0.5);
-					textBox.BackgroundColor3 = NeverZen.Theme.BackgroundColor2;
-					textBox.BorderColor3 = Color3.fromRGB(0, 0, 0);
-					textBox.BorderSizePixel = 0;
-					textBox.Position = UDim2.new(1, -2, 0.5, 0);
-					textBox.Size = UDim2.new(0, 25, 0.9, 0);
-					textBox.Font = Enum.Font.GothamMedium;
-					textBox.Text = tostring(defaultValue);
-					textBox.TextColor3 = Color3.fromRGB(255, 255, 255);
-					textBox.TextSize = 10;
-					textBox.TextTransparency = 0.250;
-					textBox.TextXAlignment = Enum.TextXAlignment.Center;
-					textBox.ZIndex = 6;
-
-					UICornerInput.CornerRadius = UDim.new(0, 3);
-					UICornerInput.Parent = textBox;
-
-					UIStrokeInput.Color = NeverZen.Theme.StrokeColor2;
-					UIStrokeInput.Parent = textBox;
-
-					-- Numeric validation
-					textBox:GetPropertyChangedSignal("Text"):Connect(function()
-						local text = textBox.Text
-						local filteredText = ""
-						
-						-- Allow only numbers
-						for i = 1, #text do
-							local char = text:sub(i, i)
-							if char:match("[0-9]") then
-								filteredText = filteredText .. char
-							end
-						end
-						
-						-- Limit to 0-255
-						if filteredText ~= "" then
-							local num = tonumber(filteredText) or 0
-							if num > 255 then
-								filteredText = "255"
-							elseif num < 0 then
-								filteredText = "0"
-							end
-						end
-						
-						-- Only update if different
-						if filteredText ~= text then
-							textBox.Text = filteredText
-						end
-					end)
-
-					-- Focus events
-					local isFocused = false
-					
-					textBox.Focused:Connect(function()
-						isFocused = true
-						
-						TweenService:Create(inputFrame, TweenInfo.new(0.2), {
-							BackgroundColor3 = NeverZen.Theme.BackgroundColor
-						}):Play()
-						
-						TweenService:Create(UIStrokeInput, TweenInfo.new(0.2), {
-							Color = NeverZen.Theme.Hightlight
-						}):Play()
-						
-						TweenService:Create(textBox, TweenInfo.new(0.2), {
-							TextTransparency = 0.1,
-							BackgroundColor3 = NeverZen.Theme.BackgroundColor
-						}):Play()
-					end)
-					
-					textBox.FocusLost:Connect(function(enterPressed)
-						isFocused = false
-						
-						TweenService:Create(inputFrame, TweenInfo.new(0.2), {
-							BackgroundColor3 = NeverZen.Theme.BackgroundColor2
-						}):Play()
-						
-						TweenService:Create(UIStrokeInput, TweenInfo.new(0.2), {
-							Color = NeverZen.Theme.StrokeColor2
-						}):Play()
-						
-						TweenService:Create(textBox, TweenInfo.new(0.2), {
-							TextTransparency = 0.250,
-							BackgroundColor3 = NeverZen.Theme.BackgroundColor2
-						}):Play()
-						
-						-- Ensure value is within 0-255
-						local currentValue = tonumber(textBox.Text) or 0
-						if currentValue < 0 then textBox.Text = "0" end
-						if currentValue > 255 then textBox.Text = "255" end
-						
-						-- Fire callback based on settings
-						if config.FireOnLostFocus or (enterPressed and config.FireOnEnter) then
-							local r = tonumber(RInput.Text) or 0
-							local g = tonumber(GInput.Text) or 0
-							local b = tonumber(BInput.Text) or 0
-							local newColor = Color3.fromRGB(r, g, b)
-							config.Callback(newColor, config)
-						end
-					end)
-
-					-- Real-time text change callback
-					if not config.FireOnLostFocus and not config.FireOnEnter then
-						textBox:GetPropertyChangedSignal("Text"):Connect(function()
-							local r = tonumber(RInput.Text) or 0
-							local g = tonumber(GInput.Text) or 0
-							local b = tonumber(BInput.Text) or 0
-							local newColor = Color3.fromRGB(r, g, b)
-							config.Callback(newColor, config)
-						end)
-					end
-
-					return textBox
-				end
-
-				-- Create RGB inputs
-				local RInput = createRGBInput("R", math.floor(config.Default.R * 255), 1)
-				local GInput = createRGBInput("G", math.floor(config.Default.G * 255), 2)
-				local BInput = createRGBInput("B", math.floor(config.Default.B * 255), 3)
-
-				-- Function to update color preview
-				local function updateColorPreview()
-					local r = tonumber(RInput.Text) or 0
-					local g = tonumber(GInput.Text) or 0
-					local b = tonumber(BInput.Text) or 0
-					local newColor = Color3.fromRGB(r, g, b)
-					
-					TweenService:Create(colorPreview, TweenInfo.new(0.2), {
-						BackgroundColor3 = newColor
-					}):Play()
-					
-					return newColor
-				end
-
-				-- Update preview when inputs change
-				RInput:GetPropertyChangedSignal("Text"):Connect(function()
-					updateColorPreview()
-				end)
-				
-				GInput:GetPropertyChangedSignal("Text"):Connect(function()
-					updateColorPreview()
-				end)
-				
-				BInput:GetPropertyChangedSignal("Text"):Connect(function()
-					updateColorPreview()
-				end)
-
-				-- Focus events for the entire container
-				rgbContainer.InputBegan:Connect(function(input)
-					if input.UserInputType == Enum.UserInputType.MouseButton1 then
-						TweenService:Create(rgbContainer, TweenInfo.new(0.2), {
-							BackgroundColor3 = NeverZen.Theme.BackgroundColor2
-						}):Play()
-						
-						TweenService:Create(UIStrokeContainer, TweenInfo.new(0.2), {
-							Color = NeverZen.Theme.Hightlight
-						}):Play()
-					end
-				end)
-				
-				rgbContainer.InputEnded:Connect(function(input)
-					if input.UserInputType == Enum.UserInputType.MouseButton1 then
-						TweenService:Create(rgbContainer, TweenInfo.new(0.2), {
-							BackgroundColor3 = NeverZen.Theme.BackgroundColor
-						}):Play()
-						
-						TweenService:Create(UIStrokeContainer, TweenInfo.new(0.2), {
-							Color = NeverZen.Theme.StrokeColor
-						}):Play()
-					end
-				end)
-
-				-- Function to set color from RGB values
-				local function setColorFromRGB(r, g, b)
-					RInput.Text = tostring(r)
-					GInput.Text = tostring(g)
-					BInput.Text = tostring(b)
-					updateColorPreview()
-				end
-
-				-- Initialize color preview
-				updateColorPreview()
-
-				return {
-					SetColor = function(self, color)
-						if typeof(color) == "Color3" then
-							setColorFromRGB(
-								math.floor(color.R * 255),
-								math.floor(color.G * 255),
-								math.floor(color.B * 255)
-							)
-							config.Callback(color, config)
-						end
-					end,
-					
-					SetValue = function(self, color)
-						self:SetColor(color)
-					end,
-					
-					GetColor = function(self)
-						local r = tonumber(RInput.Text) or 0
-						local g = tonumber(GInput.Text) or 0
-						local b = tonumber(BInput.Text) or 0
-						return Color3.fromRGB(r, g, b)
-					end,
-					
-					GetRGB = function(self)
-						local r = tonumber(RInput.Text) or 0
-						local g = tonumber(GInput.Text) or 0
-						local b = tonumber(BInput.Text) or 0
-						return r, g, b
-					end,
-					
-					SetRGB = function(self, r, g, b)
-						setColorFromRGB(r, g, b)
-						config.Callback(Color3.fromRGB(r, g, b), config)
-					end,
-					
-					SetLabel = function(self, newLabel)
-						config.Name = newLabel
-						Label.Text = newLabel
-					end,
-					
-					Disable = function(self)
-						RInput.TextEditable = false
-						GInput.TextEditable = false
-						BInput.TextEditable = false
-						
-						TweenService:Create(RInput, TweenInfo.new(0.2), {
-							TextTransparency = 0.5,
-							BackgroundColor3 = NeverZen.Theme.BackgroundColor
-						}):Play()
-						
-						TweenService:Create(GInput, TweenInfo.new(0.2), {
-							TextTransparency = 0.5,
-							BackgroundColor3 = NeverZen.Theme.BackgroundColor
-						}):Play()
-						
-						TweenService:Create(BInput, TweenInfo.new(0.2), {
-							TextTransparency = 0.5,
-							BackgroundColor3 = NeverZen.Theme.BackgroundColor
-						}):Play()
-						
-						TweenService:Create(Label, TweenInfo.new(0.2), {
-							TextTransparency = 0.5
-						}):Play()
-					end,
-					
-					Enable = function(self)
-						RInput.TextEditable = true
-						GInput.TextEditable = true
-						BInput.TextEditable = true
-						
-						TweenService:Create(RInput, TweenInfo.new(0.2), {
-							TextTransparency = 0.250,
-							BackgroundColor3 = NeverZen.Theme.BackgroundColor2
-						}):Play()
-						
-						TweenService:Create(GInput, TweenInfo.new(0.2), {
-							TextTransparency = 0.250,
-							BackgroundColor3 = NeverZen.Theme.BackgroundColor2
-						}):Play()
-						
-						TweenService:Create(BInput, TweenInfo.new(0.2), {
-							TextTransparency = 0.250,
-							BackgroundColor3 = NeverZen.Theme.BackgroundColor2
-						}):Play()
-						
-						TweenService:Create(Label, TweenInfo.new(0.2), {
-							TextTransparency = 0.250
-						}):Play()
-					end,
-					
-					Visible = function(self, value)
-						ColorInput.Visible = value
-					end,
-					
-					FireCallback = function(self)
-						local color = self:GetColor()
-						config.Callback(color, config)
-					end,
-					
-					Fire = config.Callback
 				};
 			end;
 
