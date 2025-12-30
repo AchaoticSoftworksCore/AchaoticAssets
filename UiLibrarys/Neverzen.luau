@@ -2949,6 +2949,411 @@ function NeverZen.new(config)
 				};
 			end;
 
+			function SectionSignal:AddColorInput(config)
+				config = config or {};
+				config.Name = config.Name or "Color";
+				config.Default = config.Default or Color3.fromRGB(255, 255, 255);
+				config.Callback = config.Callback or function() end;
+				config.FireOnEnter = config.FireOnEnter or false;
+				config.FireOnLostFocus = config.FireOnLostFocus or true;
+
+				local ColorInput = Instance.new("Frame");
+				local Label = Instance.new("TextLabel");
+				local rgbContainer = Instance.new("Frame");
+				local UIListLayout = Instance.new("UIListLayout");
+				local colorPreview = Instance.new("Frame");
+				local UICornerPreview = Instance.new("UICorner");
+				local UIStrokePreview = Instance.new("UIStroke");
+
+				table.insert(itemForSearch, {
+					Frame = ColorInput,
+					Name = config.Name
+				});
+
+				ColorInput.Name = NeverZen:RandomString();
+				ColorInput.Parent = Section;
+				ColorInput.BackgroundColor3 = Color3.fromRGB(255, 255, 255);
+				ColorInput.BackgroundTransparency = 1.000;
+				ColorInput.BorderColor3 = Color3.fromRGB(0, 0, 0);
+				ColorInput.BorderSizePixel = 0;
+				ColorInput.Size = UDim2.new(1, -5, 0, 25);
+
+				Label.Name = NeverZen:RandomString();
+				Label.Parent = ColorInput;
+				Label.AnchorPoint = Vector2.new(0, 0.5);
+				Label.BackgroundColor3 = Color3.fromRGB(255, 255, 255);
+				Label.BackgroundTransparency = 1.000;
+				Label.BorderColor3 = Color3.fromRGB(0, 0, 0);
+				Label.BorderSizePixel = 0;
+				Label.Position = UDim2.new(0, 5, 0.5, 0);
+				Label.Size = UDim2.new(0, 80, 0.649999976, 0);
+				Label.Font = Enum.Font.GothamMedium;
+				Label.Text = config.Name;
+				Label.TextColor3 = Color3.fromRGB(255, 255, 255);
+				Label.TextSize = 14.000;
+				Label.TextTransparency = 0.250;
+				Label.TextXAlignment = Enum.TextXAlignment.Left;
+
+				-- RGB Container
+				rgbContainer.Name = NeverZen:RandomString();
+				rgbContainer.Parent = ColorInput;
+				rgbContainer.AnchorPoint = Vector2.new(1, 0.5);
+				rgbContainer.BackgroundColor3 = NeverZen.Theme.BackgroundColor;
+				rgbContainer.BorderColor3 = Color3.fromRGB(0, 0, 0);
+				rgbContainer.BorderSizePixel = 0;
+				rgbContainer.Position = UDim2.new(1, -3, 0.5, 0);
+				rgbContainer.Size = UDim2.new(1, -85, 0, 15);
+				rgbContainer.ClipsDescendants = true;
+
+				local UICornerContainer = Instance.new("UICorner");
+				UICornerContainer.CornerRadius = UDim.new(0, 4);
+				UICornerContainer.Parent = rgbContainer;
+
+				local UIStrokeContainer = Instance.new("UIStroke");
+				UIStrokeContainer.Color = NeverZen.Theme.StrokeColor;
+				UIStrokeContainer.Parent = rgbContainer;
+
+				-- Color Preview
+				colorPreview.Name = NeverZen:RandomString();
+				colorPreview.Parent = rgbContainer;
+				colorPreview.AnchorPoint = Vector2.new(0, 0.5);
+				colorPreview.BackgroundColor3 = config.Default;
+				colorPreview.BorderColor3 = Color3.fromRGB(0, 0, 0);
+				colorPreview.BorderSizePixel = 0;
+				colorPreview.Position = UDim2.new(0, 2, 0.5, 0);
+				colorPreview.Size = UDim2.new(0, 25, 1, -4);
+				colorPreview.ZIndex = 5;
+
+				UICornerPreview.CornerRadius = UDim.new(0, 3);
+				UICornerPreview.Parent = colorPreview;
+
+				UIStrokePreview.Color = NeverZen.Theme.StrokeColor2;
+				UIStrokePreview.Parent = colorPreview;
+
+				UIListLayout.Parent = rgbContainer;
+				UIListLayout.FillDirection = Enum.FillDirection.Horizontal;
+				UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder;
+				UIListLayout.Padding = UDim.new(0, 2);
+				UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right;
+				UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center;
+
+				-- Create RGB input function
+				local function createRGBInput(labelText, defaultValue, order)
+					local inputFrame = Instance.new("Frame");
+					local textBox = Instance.new("TextBox");
+					local UICornerInput = Instance.new("UICorner");
+					local UIStrokeInput = Instance.new("UIStroke");
+					local label = Instance.new("TextLabel");
+
+					inputFrame.Name = NeverZen:RandomString();
+					inputFrame.Parent = rgbContainer;
+					inputFrame.LayoutOrder = order;
+					inputFrame.BackgroundColor3 = NeverZen.Theme.BackgroundColor2;
+					inputFrame.Size = UDim2.new(0, 35, 0, 13);
+					inputFrame.ZIndex = 5;
+
+					label.Name = NeverZen:RandomString();
+					label.Parent = inputFrame;
+					label.AnchorPoint = Vector2.new(0, 0.5);
+					label.BackgroundColor3 = Color3.fromRGB(255, 255, 255);
+					label.BackgroundTransparency = 1.000;
+					label.Position = UDim2.new(0, 2, 0.5, 0);
+					label.Size = UDim2.new(0, 8, 0.8, 0);
+					label.Font = Enum.Font.GothamMedium;
+					label.Text = labelText;
+					label.TextColor3 = Color3.fromRGB(255, 255, 255);
+					label.TextSize = 10;
+					label.TextTransparency = 0.250;
+					label.TextXAlignment = Enum.TextXAlignment.Left;
+					label.ZIndex = 6;
+
+					textBox.Name = NeverZen:RandomString();
+					textBox.Parent = inputFrame;
+					textBox.AnchorPoint = Vector2.new(1, 0.5);
+					textBox.BackgroundColor3 = NeverZen.Theme.BackgroundColor2;
+					textBox.BorderColor3 = Color3.fromRGB(0, 0, 0);
+					textBox.BorderSizePixel = 0;
+					textBox.Position = UDim2.new(1, -2, 0.5, 0);
+					textBox.Size = UDim2.new(0, 25, 0.9, 0);
+					textBox.Font = Enum.Font.GothamMedium;
+					textBox.Text = tostring(defaultValue);
+					textBox.TextColor3 = Color3.fromRGB(255, 255, 255);
+					textBox.TextSize = 10;
+					textBox.TextTransparency = 0.250;
+					textBox.TextXAlignment = Enum.TextXAlignment.Center;
+					textBox.ZIndex = 6;
+
+					UICornerInput.CornerRadius = UDim.new(0, 3);
+					UICornerInput.Parent = textBox;
+
+					UIStrokeInput.Color = NeverZen.Theme.StrokeColor2;
+					UIStrokeInput.Parent = textBox;
+
+					-- Numeric validation
+					textBox:GetPropertyChangedSignal("Text"):Connect(function()
+						local text = textBox.Text
+						local filteredText = ""
+						
+						-- Allow only numbers
+						for i = 1, #text do
+							local char = text:sub(i, i)
+							if char:match("[0-9]") then
+								filteredText = filteredText .. char
+							end
+						end
+						
+						-- Limit to 0-255
+						if filteredText ~= "" then
+							local num = tonumber(filteredText) or 0
+							if num > 255 then
+								filteredText = "255"
+							elseif num < 0 then
+								filteredText = "0"
+							end
+						end
+						
+						-- Only update if different
+						if filteredText ~= text then
+							textBox.Text = filteredText
+						end
+					end)
+
+					-- Focus events
+					local isFocused = false
+					
+					textBox.Focused:Connect(function()
+						isFocused = true
+						
+						TweenService:Create(inputFrame, TweenInfo.new(0.2), {
+							BackgroundColor3 = NeverZen.Theme.BackgroundColor
+						}):Play()
+						
+						TweenService:Create(UIStrokeInput, TweenInfo.new(0.2), {
+							Color = NeverZen.Theme.Hightlight
+						}):Play()
+						
+						TweenService:Create(textBox, TweenInfo.new(0.2), {
+							TextTransparency = 0.1,
+							BackgroundColor3 = NeverZen.Theme.BackgroundColor
+						}):Play()
+					end)
+					
+					textBox.FocusLost:Connect(function(enterPressed)
+						isFocused = false
+						
+						TweenService:Create(inputFrame, TweenInfo.new(0.2), {
+							BackgroundColor3 = NeverZen.Theme.BackgroundColor2
+						}):Play()
+						
+						TweenService:Create(UIStrokeInput, TweenInfo.new(0.2), {
+							Color = NeverZen.Theme.StrokeColor2
+						}):Play()
+						
+						TweenService:Create(textBox, TweenInfo.new(0.2), {
+							TextTransparency = 0.250,
+							BackgroundColor3 = NeverZen.Theme.BackgroundColor2
+						}):Play()
+						
+						-- Ensure value is within 0-255
+						local currentValue = tonumber(textBox.Text) or 0
+						if currentValue < 0 then textBox.Text = "0" end
+						if currentValue > 255 then textBox.Text = "255" end
+						
+						-- Fire callback based on settings
+						if config.FireOnLostFocus or (enterPressed and config.FireOnEnter) then
+							local r = tonumber(RInput.Text) or 0
+							local g = tonumber(GInput.Text) or 0
+							local b = tonumber(BInput.Text) or 0
+							local newColor = Color3.fromRGB(r, g, b)
+							config.Callback(newColor, config)
+						end
+					end)
+
+					-- Real-time text change callback
+					if not config.FireOnLostFocus and not config.FireOnEnter then
+						textBox:GetPropertyChangedSignal("Text"):Connect(function()
+							local r = tonumber(RInput.Text) or 0
+							local g = tonumber(GInput.Text) or 0
+							local b = tonumber(BInput.Text) or 0
+							local newColor = Color3.fromRGB(r, g, b)
+							config.Callback(newColor, config)
+						end)
+					end
+
+					return textBox
+				end
+
+				-- Create RGB inputs
+				local RInput = createRGBInput("R", math.floor(config.Default.R * 255), 1)
+				local GInput = createRGBInput("G", math.floor(config.Default.G * 255), 2)
+				local BInput = createRGBInput("B", math.floor(config.Default.B * 255), 3)
+
+				-- Function to update color preview
+				local function updateColorPreview()
+					local r = tonumber(RInput.Text) or 0
+					local g = tonumber(GInput.Text) or 0
+					local b = tonumber(BInput.Text) or 0
+					local newColor = Color3.fromRGB(r, g, b)
+					
+					TweenService:Create(colorPreview, TweenInfo.new(0.2), {
+						BackgroundColor3 = newColor
+					}):Play()
+					
+					return newColor
+				end
+
+				-- Update preview when inputs change
+				RInput:GetPropertyChangedSignal("Text"):Connect(function()
+					updateColorPreview()
+				end)
+				
+				GInput:GetPropertyChangedSignal("Text"):Connect(function()
+					updateColorPreview()
+				end)
+				
+				BInput:GetPropertyChangedSignal("Text"):Connect(function()
+					updateColorPreview()
+				end)
+
+				-- Focus events for the entire container
+				rgbContainer.InputBegan:Connect(function(input)
+					if input.UserInputType == Enum.UserInputType.MouseButton1 then
+						TweenService:Create(rgbContainer, TweenInfo.new(0.2), {
+							BackgroundColor3 = NeverZen.Theme.BackgroundColor2
+						}):Play()
+						
+						TweenService:Create(UIStrokeContainer, TweenInfo.new(0.2), {
+							Color = NeverZen.Theme.Hightlight
+						}):Play()
+					end
+				end)
+				
+				rgbContainer.InputEnded:Connect(function(input)
+					if input.UserInputType == Enum.UserInputType.MouseButton1 then
+						TweenService:Create(rgbContainer, TweenInfo.new(0.2), {
+							BackgroundColor3 = NeverZen.Theme.BackgroundColor
+						}):Play()
+						
+						TweenService:Create(UIStrokeContainer, TweenInfo.new(0.2), {
+							Color = NeverZen.Theme.StrokeColor
+						}):Play()
+					end
+				end)
+
+				-- Function to set color from RGB values
+				local function setColorFromRGB(r, g, b)
+					RInput.Text = tostring(r)
+					GInput.Text = tostring(g)
+					BInput.Text = tostring(b)
+					updateColorPreview()
+				end
+
+				-- Initialize color preview
+				updateColorPreview()
+
+				return {
+					SetColor = function(self, color)
+						if typeof(color) == "Color3" then
+							setColorFromRGB(
+								math.floor(color.R * 255),
+								math.floor(color.G * 255),
+								math.floor(color.B * 255)
+							)
+							config.Callback(color, config)
+						end
+					end,
+					
+					SetValue = function(self, color)
+						self:SetColor(color)
+					end,
+					
+					GetColor = function(self)
+						local r = tonumber(RInput.Text) or 0
+						local g = tonumber(GInput.Text) or 0
+						local b = tonumber(BInput.Text) or 0
+						return Color3.fromRGB(r, g, b)
+					end,
+					
+					GetRGB = function(self)
+						local r = tonumber(RInput.Text) or 0
+						local g = tonumber(GInput.Text) or 0
+						local b = tonumber(BInput.Text) or 0
+						return r, g, b
+					end,
+					
+					SetRGB = function(self, r, g, b)
+						setColorFromRGB(r, g, b)
+						config.Callback(Color3.fromRGB(r, g, b), config)
+					end,
+					
+					SetLabel = function(self, newLabel)
+						config.Name = newLabel
+						Label.Text = newLabel
+					end,
+					
+					Disable = function(self)
+						RInput.TextEditable = false
+						GInput.TextEditable = false
+						BInput.TextEditable = false
+						
+						TweenService:Create(RInput, TweenInfo.new(0.2), {
+							TextTransparency = 0.5,
+							BackgroundColor3 = NeverZen.Theme.BackgroundColor
+						}):Play()
+						
+						TweenService:Create(GInput, TweenInfo.new(0.2), {
+							TextTransparency = 0.5,
+							BackgroundColor3 = NeverZen.Theme.BackgroundColor
+						}):Play()
+						
+						TweenService:Create(BInput, TweenInfo.new(0.2), {
+							TextTransparency = 0.5,
+							BackgroundColor3 = NeverZen.Theme.BackgroundColor
+						}):Play()
+						
+						TweenService:Create(Label, TweenInfo.new(0.2), {
+							TextTransparency = 0.5
+						}):Play()
+					end,
+					
+					Enable = function(self)
+						RInput.TextEditable = true
+						GInput.TextEditable = true
+						BInput.TextEditable = true
+						
+						TweenService:Create(RInput, TweenInfo.new(0.2), {
+							TextTransparency = 0.250,
+							BackgroundColor3 = NeverZen.Theme.BackgroundColor2
+						}):Play()
+						
+						TweenService:Create(GInput, TweenInfo.new(0.2), {
+							TextTransparency = 0.250,
+							BackgroundColor3 = NeverZen.Theme.BackgroundColor2
+						}):Play()
+						
+						TweenService:Create(BInput, TweenInfo.new(0.2), {
+							TextTransparency = 0.250,
+							BackgroundColor3 = NeverZen.Theme.BackgroundColor2
+						}):Play()
+						
+						TweenService:Create(Label, TweenInfo.new(0.2), {
+							TextTransparency = 0.250
+						}):Play()
+					end,
+					
+					Visible = function(self, value)
+						ColorInput.Visible = value
+					end,
+					
+					FireCallback = function(self)
+						local color = self:GetColor()
+						config.Callback(color, config)
+					end,
+					
+					Fire = config.Callback
+				};
+			end;
+
 			function SectionSignal:AddDropdown(config)
 				config = config or {};
 				config.Name = config.Name or "Dropdown";
