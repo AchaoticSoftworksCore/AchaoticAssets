@@ -2323,7 +2323,7 @@ function NeverZen.new(config)
 				config.Name = config.Name or "Slider"
 				config.Min = config.Min or 0;
 				config.Max = config.Max or 100;
-				config.Default = math.clamp(config.Default or config.Min, config.Min, config.Max);
+				config.Default = config.Default or config.Min;
 				config.Round = config.Round or 0;
 				config.Type = config.Type or "";
 				config.Callback = config.Callback or function() end;
@@ -2353,7 +2353,7 @@ function NeverZen.new(config)
 				Slider.BackgroundTransparency = 1.000
 				Slider.BorderColor3 = Color3.fromRGB(0, 0, 0)
 				Slider.BorderSizePixel = 0
-				Slider.Size = UDim2.new(1, -5, 0, 25)
+				Slider.Size = UDim2.new(1, -5, 0, 22) -- Reduced from 25 to 22
 
 				value.Name = "value"
 				value.Parent = Slider
@@ -2362,7 +2362,7 @@ function NeverZen.new(config)
 				value.BorderColor3 = Color3.fromRGB(0, 0, 0)
 				value.BorderSizePixel = 0
 				value.Position = UDim2.new(1, -3, 0.5, 0)
-				value.Size = UDim2.new(0, 35, 0, 15) -- Increased initial size
+				value.Size = UDim2.new(0, 35, 0, 15) -- Optimized width
 
 				UICorner.CornerRadius = UDim.new(0, 4)
 				UICorner.Parent = value
@@ -2391,7 +2391,7 @@ function NeverZen.new(config)
 				Label.BorderColor3 = Color3.fromRGB(0, 0, 0)
 				Label.BorderSizePixel = 0
 				Label.Position = UDim2.new(0, 5, 0.5, 0)
-				Label.Size = UDim2.new(1, -40, 0.649999976, 0) -- Adjusted for better spacing
+				Label.Size = UDim2.new(1, -40, 0.649999976, 0) -- Adjusted from -25 to -40
 				Label.Font = Enum.Font.GothamMedium
 				Label.Text = config.Name
 				Label.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -2405,8 +2405,8 @@ function NeverZen.new(config)
 				con.BackgroundColor3 = NeverZen.Theme.BackgroundColor
 				con.BorderColor3 = Color3.fromRGB(0, 0, 0)
 				con.BorderSizePixel = 0
-				con.Position = UDim2.new(1, -40, 0.5, 0)
-				con.Size = UDim2.new(1, -135, 0.200000003, 0)
+				con.Position = UDim2.new(1, -40, 0.5, 0) -- Moved left from -32 to -40
+				con.Size = UDim2.new(1, -140, 0.200000003, 0) -- Thinner from -125 to -140
 
 				UICorner_2.CornerRadius = UDim.new(1, 0)
 				UICorner_2.Parent = con
@@ -2443,111 +2443,75 @@ function NeverZen.new(config)
 
 				local updateSIZE = function()
 					local test = "2."..string.rep("4",(config.Round or 0) + 1)..tostring(config.Type);
+					local scale = TextService:GetTextSize(test,LabelValue.TextSize,LabelValue.Font,Vector2.new(math.huge,math.huge));
+					local scalelab = TextService:GetTextSize(Label.Text,Label.TextSize,Label.Font,Vector2.new(math.huge,math.huge));
+
+					-- Use dynamic sizing with minimums
+					local valueWidth = math.max(scale.X + 10, 35) -- Minimum value width
+					local labelWidth = scalelab.X + 10 -- Label width with padding
 					
-					local scale = TextService:GetTextSize(test, LabelValue.TextSize, LabelValue.Font, Vector2.new(math.huge, math.huge));
-					local scalelab = TextService:GetTextSize(Label.Text, Label.TextSize, Label.Font, Vector2.new(math.huge, math.huge));
-					
-					value.Size = UDim2.new(0, math.max(scale.X + 10, 35), 0, 15)
-					con.Position = UDim2.new(1, -(value.AbsoluteSize.X + 8), 0.5, 0)
-					con.Size = UDim2.new(1, -(scalelab.X + value.AbsoluteSize.X + 15), 0.200000003, 0)
-				end;
+					value.Size = UDim2.new(0, valueWidth, 0, 15)
+					con.Position = UDim2.new(1, -(valueWidth + 8), 0.5, 0)
+					con.Size = UDim2.new(1, -(labelWidth + valueWidth + 15), 0.200000003, 0) -- Updated calculation
+				end
 
 				updateSIZE()
 
 				local function update(Input)
-					local relativeX = (Input.Position.X - con.AbsolutePosition.X)
-					local SizeScale = math.clamp(relativeX / con.AbsoluteSize.X, 0, 1)
-					local Main = ((config.Max - config.Min) * SizeScale) + config.Min
-					local Value = NeverZen:Rounding(Main, config.Round)
-					
-					-- Ensure value is within bounds
-					Value = math.clamp(Value, config.Min, config.Max)
-					local normalized = (Value - config.Min) / (config.Max - config.Min)
-					normalized = math.clamp(normalized, 0, 1)
+					local SizeScale = math.clamp((((Input.Position.X) - con.AbsolutePosition.X) / con.AbsoluteSize.X), 0, 1);
+					local Main = ((config.Max - config.Min) * SizeScale) + config.Min;
+					local Value = NeverZen:Rounding(Main,config.Round);
+					local normalized = (Value - config.Min) / (config.Max - config.Min);
 
-					TweenService:Create(block, TweenInfo.new(0.04), {
+					TweenService:Create(block , TweenInfo.new(0.04),{
 						Size = UDim2.new(normalized, 0, 1, 0)
-					}):Play()
+					}):Play();
 
 					LabelValue.Text = tostring(Value)..tostring(config.Type)
 					updateSIZE()
-					
-					config.Callback(Value, config)
-				end
+					config.Callback(Value,config)
+				end;
 
 				con.InputBegan:Connect(function(Input)
-					if Input.UserInputType == Enum.UserInputType.MouseButton1 
-						or Input.UserInputType == Enum.UserInputType.Touch then
-						
-						if Content.Enabled and Content.Parent then
-							IsHold = true
-							update(Input)
-						end
+					if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+						IsHold = true
+						update(Input)
 					end
 				end)
 
 				con.InputEnded:Connect(function(Input)
-					if Input.UserInputType == Enum.UserInputType.MouseButton1 
-						or Input.UserInputType == Enum.UserInputType.Touch then
-						
+					if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
 						IsHold = false
 					end
 				end)
 
 				Services.UserInputService.InputChanged:Connect(function(Input)
-					if IsHold and Content.Enabled and Content.Parent then
-						if Input.UserInputType == Enum.UserInputType.MouseMovement 
-							or Input.UserInputType == Enum.UserInputType.Touch then
-							
-							if Services.UserInputService.TouchEnabled then
-								local touchPos = Input.Position
-								local relativePos = Vector2.new(
-									touchPos.X - con.AbsolutePosition.X,
-									touchPos.Y - con.AbsolutePosition.Y
-								)
-								
-								-- Allow dragging even if slightly outside bounds
-								if relativePos.X >= -20 and relativePos.X <= con.AbsoluteSize.X + 20
-									and relativePos.Y >= -20 and relativePos.Y <= con.AbsoluteSize.Y + 20 then
-									update(Input)
-								else
-									IsHold = false
-								end
-							else
-								update(Input)
-							end
+					if IsHold then
+						if (Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch)  then
+							update(Input)
 						end
+
+						if Services.UserInputService.TouchEnabled then
+							if not NeverZen:IsMouseOverFrame(Slider) then
+								IsHold = false
+							end;
+						end;
 					end
-				end)
+				end);
 
 				return {
-					SetValue = function(self, newvalue)
-						if not newvalue then return end
-						
-						newvalue = math.clamp(newvalue, config.Min, config.Max)
-						config.Default = newvalue
-						
-						local normalized = (newvalue - config.Min) / (config.Max - config.Min)
-						normalized = math.clamp(normalized, 0, 1)
-						
-						block.Size = UDim2.new(normalized, 0, 1, 0)
-						LabelValue.Text = tostring(newvalue)..tostring(config.Type)
+					SetValue = function(self,newvalue)
+						config.Default = newvalue;
+						block.Size = UDim2.new(((config.Default - config.Min) / (config.Max - config.Min)), 0, 1, 0)
+						LabelValue.Text = tostring(config.Default)..tostring(config.Type)
 						updateSIZE()
-						
-						config.Callback(newvalue, config)
 					end,
-					
 					Fire = config.Callback,
-					
-					Visible = function(self, value)
-						Slider.Visible = value
+					Visible = function(self,value)
+						Slider.Visible = value;
 					end,
-					
-					GetValue = function(self)
-						return config.Default
-					end
-				}
-			end
+				};
+			end;
 
 			function SectionSignal:AddKeybind(config)
 				config = config or {};
