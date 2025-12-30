@@ -1,11 +1,3 @@
---[[
-    		NEVERZEN INTERFACE
-
-    Author: 4lpaca
-    License: MIT
-    GitHub: https://github.com/3345-c-a-t-s-u-s/NeverZen
---]]
-
 cloneref = cloneref or function(...) return ... end;
 cloenfunction = cloenfunction or function(...) return ... end;
 hookfunction = hookfunction or function(a,b) return a end;
