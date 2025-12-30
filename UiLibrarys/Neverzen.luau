@@ -2682,6 +2682,664 @@ function NeverZen.new(config)
 				};
 			end;
 
+			function SectionSignal:AddColorpicker(config)
+				config = config or {};
+				config.Name = config.Name or "Colorpicker";
+				config.Default = config.Default or Color3.fromRGB(255, 255, 255);
+				config.Callback = config.Callback or function() end;
+				config.PresetColors = config.PresetColors or {
+					Color3.fromRGB(255, 0, 0),
+					Color3.fromRGB(0, 255, 0),
+					Color3.fromRGB(0, 0, 255),
+					Color3.fromRGB(255, 255, 0),
+					Color3.fromRGB(255, 0, 255),
+					Color3.fromRGB(0, 255, 255),
+					Color3.fromRGB(255, 255, 255),
+					Color3.fromRGB(0, 0, 0)
+				};
+
+				local Colorpicker = Instance.new("Frame");
+				local Label = Instance.new("TextLabel");
+				local sys = Instance.new("Frame");
+				local UICorner = Instance.new("UICorner");
+				local colorPreview = Instance.new("Frame");
+				local UICorner_2 = Instance.new("UICorner");
+				local UIStroke = Instance.new("UIStroke");
+
+				table.insert(itemForSearch, {
+					Frame = Colorpicker,
+					Name = config.Name
+				});
+
+				Colorpicker.Name = NeverZen:RandomString();
+				Colorpicker.Parent = Section;
+				Colorpicker.BackgroundColor3 = Color3.fromRGB(255, 255, 255);
+				Colorpicker.BackgroundTransparency = 1.000;
+				Colorpicker.BorderColor3 = Color3.fromRGB(0, 0, 0);
+				Colorpicker.BorderSizePixel = 0;
+				Colorpicker.Size = UDim2.new(1, -5, 0, 25);
+
+				Label.Name = NeverZen:RandomString();
+				Label.Parent = Colorpicker;
+				Label.AnchorPoint = Vector2.new(0, 0.5);
+				Label.BackgroundColor3 = Color3.fromRGB(255, 255, 255);
+				Label.BackgroundTransparency = 1.000;
+				Label.BorderColor3 = Color3.fromRGB(0, 0, 0);
+				Label.BorderSizePixel = 0;
+				Label.Position = UDim2.new(0, 5, 0.5, 0);
+				Label.Size = UDim2.new(1, -25, 0.649999976, 0);
+				Label.Font = Enum.Font.GothamMedium;
+				Label.Text = config.Name;
+				Label.TextColor3 = Color3.fromRGB(255, 255, 255);
+				Label.TextSize = 14.000;
+				Label.TextTransparency = 0.250;
+				Label.TextXAlignment = Enum.TextXAlignment.Left;
+
+				sys.Name = NeverZen:RandomString();
+				sys.Parent = Colorpicker;
+				sys.AnchorPoint = Vector2.new(1, 0.5);
+				sys.BackgroundColor3 = NeverZen.Theme.BackgroundColor;
+				sys.BorderColor3 = Color3.fromRGB(0, 0, 0);
+				sys.BorderSizePixel = 0;
+				sys.Position = UDim2.new(1, -3, 0.5, 0);
+				sys.Size = UDim2.new(0, 25, 0, 15);
+
+				UICorner.CornerRadius = UDim.new(0, 4);
+				UICorner.Parent = sys;
+
+				colorPreview.Name = NeverZen:RandomString();
+				colorPreview.Parent = sys;
+				colorPreview.BackgroundColor3 = config.Default;
+				colorPreview.BorderColor3 = Color3.fromRGB(0, 0, 0);
+				colorPreview.BorderSizePixel = 0;
+				colorPreview.Size = UDim2.new(1, -2, 1, -2);
+				colorPreview.Position = UDim2.new(0, 1, 0, 1);
+
+				UICorner_2.CornerRadius = UDim.new(0, 3);
+				UICorner_2.Parent = colorPreview;
+
+				UIStroke.Color = NeverZen.Theme.StrokeColor;
+				UIStroke.Parent = sys;
+
+				-- Color Picker Popup
+				local ColorPickerPopup = Instance.new("Frame");
+				local UICornerPopup = Instance.new("UICorner");
+				local UIStrokePopup = Instance.new("UIStroke");
+				local DropShadowPopup = Instance.new("ImageLabel");
+				
+				local ColorWheelFrame = Instance.new("Frame");
+				local ColorWheelImage = Instance.new("ImageLabel");
+				local ColorWheelSelector = Instance.new("Frame");
+				local UICornerSelector = Instance.new("UICorner");
+				
+				local HueSliderFrame = Instance.new("Frame");
+				local HueSliderImage = Instance.new("ImageLabel");
+				local HueSliderSelector = Instance.new("Frame");
+				
+				local ColorPreview = Instance.new("Frame");
+				local UICornerPreview = Instance.new("UICorner");
+				local UIStrokePreview = Instance.new("UIStroke");
+				
+				local RGBInputFrame = Instance.new("Frame");
+				local UIListLayoutRGB = Instance.new("UIListLayout");
+				
+				local HexInputFrame = Instance.new("Frame");
+				local HexTextBox = Instance.new("TextBox");
+				local HexLabel = Instance.new("TextLabel");
+				
+				local PresetColorsFrame = Instance.new("Frame");
+				local UIListLayoutPresets = Instance.new("UIListLayout");
+				
+				-- Create Preset Color buttons
+				local function createPresetColorButton(color)
+					local presetButton = Instance.new("Frame");
+					local UICornerPreset = Instance.new("UICorner");
+					local UIStrokePreset = Instance.new("UIStroke");
+					
+					presetButton.Name = NeverZen:RandomString();
+					presetButton.Parent = PresetColorsFrame;
+					presetButton.BackgroundColor3 = color;
+					presetButton.Size = UDim2.new(0, 20, 0, 20);
+					presetButton.ZIndex = 101;
+					
+					UICornerPreset.CornerRadius = UDim.new(0, 3);
+					UICornerPreset.Parent = presetButton;
+					
+					UIStrokePreset.Color = NeverZen.Theme.StrokeColor;
+					UIStrokePreset.Parent = presetButton;
+					
+					NeverZen:NewInput(presetButton, function()
+						if not Content.Enabled or not Content.Parent then
+							return;
+						end;
+						
+						setColor(color);
+						ColorPickerPopup:SetAttribute('OPENED', false);
+						TweenService:Create(ColorPickerPopup, TweenInfo.new(0.2), {
+							Size = UDim2.new(0, 200, 0, 0)
+						}):Play();
+					end);
+					
+					return presetButton;
+				end;
+
+				ColorPickerPopup.Name = NeverZen:RandomString();
+				ColorPickerPopup.Parent = Content;
+				ColorPickerPopup.BackgroundColor3 = NeverZen.Theme.WindowBackgroundColor;
+				ColorPickerPopup.BackgroundTransparency = 0.050;
+				ColorPickerPopup.BorderColor3 = Color3.fromRGB(0, 0, 0);
+				ColorPickerPopup.BorderSizePixel = 0;
+				ColorPickerPopup.ClipsDescendants = true;
+				ColorPickerPopup.Position = UDim2.new(0, 0, 0, 0);
+				ColorPickerPopup.Size = UDim2.new(0, 200, 0, 0);
+				ColorPickerPopup.ZIndex = 100;
+				ColorPickerPopup.Visible = false;
+
+				table.insert(WindowSignal.FrameMemory.WindowBackgroundColor, ColorPickerPopup);
+
+				UICornerPopup.CornerRadius = UDim.new(0, 4);
+				UICornerPopup.Parent = ColorPickerPopup;
+
+				UIStrokePopup.Color = NeverZen.Theme.BackgroundColor;
+				UIStrokePopup.Parent = ColorPickerPopup;
+
+				-- Color Wheel
+				ColorWheelFrame.Name = NeverZen:RandomString();
+				ColorWheelFrame.Parent = ColorPickerPopup;
+				ColorWheelFrame.AnchorPoint = Vector2.new(0.5, 0);
+				ColorWheelFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255);
+				ColorWheelFrame.BackgroundTransparency = 1.000;
+				ColorWheelFrame.Position = UDim2.new(0.5, 0, 0, 10);
+				ColorWheelFrame.Size = UDim2.new(0, 100, 0, 100);
+				ColorWheelFrame.ZIndex = 101;
+
+				ColorWheelImage.Name = NeverZen:RandomString();
+				ColorWheelImage.Parent = ColorWheelFrame;
+				ColorWheelImage.BackgroundColor3 = Color3.fromRGB(255, 255, 255);
+				ColorWheelImage.BackgroundTransparency = 1.000;
+				ColorWheelImage.Size = UDim2.new(1, 0, 1, 0);
+				ColorWheelImage.ZIndex = 101;
+				ColorWheelImage.Image = "rbxassetid://6884770328"; -- Color wheel image
+
+				ColorWheelSelector.Name = NeverZen:RandomString();
+				ColorWheelSelector.Parent = ColorWheelFrame;
+				ColorWheelSelector.AnchorPoint = Vector2.new(0.5, 0.5);
+				ColorWheelSelector.BackgroundColor3 = Color3.fromRGB(255, 255, 255);
+				ColorWheelSelector.BorderColor3 = Color3.fromRGB(0, 0, 0);
+				ColorWheelSelector.BorderSizePixel = 2;
+				ColorWheelSelector.Size = UDim2.new(0, 10, 0, 10);
+				ColorWheelSelector.ZIndex = 102;
+
+				UICornerSelector.CornerRadius = UDim.new(1, 0);
+				UICornerSelector.Parent = ColorWheelSelector;
+
+				-- Hue Slider
+				HueSliderFrame.Name = NeverZen:RandomString();
+				HueSliderFrame.Parent = ColorPickerPopup;
+				HueSliderFrame.AnchorPoint = Vector2.new(0, 0);
+				HueSliderFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255);
+				HueSliderFrame.BackgroundTransparency = 1.000;
+				HueSliderFrame.Position = UDim2.new(0, 120, 0, 10);
+				HueSliderFrame.Size = UDim2.new(0, 15, 0, 100);
+				HueSliderFrame.ZIndex = 101;
+
+				HueSliderImage.Name = NeverZen:RandomString();
+				HueSliderImage.Parent = HueSliderFrame;
+				HueSliderImage.BackgroundColor3 = Color3.fromRGB(255, 255, 255);
+				HueSliderImage.BackgroundTransparency = 1.000;
+				HueSliderImage.Size = UDim2.new(1, 0, 1, 0);
+				HueSliderImage.ZIndex = 101;
+				HueSliderImage.Image = "rbxassetid://6884772791"; -- Hue gradient image
+
+				HueSliderSelector.Name = NeverZen:RandomString();
+				HueSliderSelector.Parent = HueSliderFrame;
+				HueSliderSelector.AnchorPoint = Vector2.new(0.5, 0);
+				HueSliderSelector.BackgroundColor3 = Color3.fromRGB(255, 255, 255);
+				HueSliderSelector.BorderColor3 = Color3.fromRGB(0, 0, 0);
+				HueSliderSelector.BorderSizePixel = 2;
+				HueSliderSelector.Size = UDim2.new(1, 0, 0, 5);
+				HueSliderSelector.ZIndex = 102;
+
+				-- Color Preview
+				ColorPreview.Name = NeverZen:RandomString();
+				ColorPreview.Parent = ColorPickerPopup;
+				ColorPreview.BackgroundColor3 = config.Default;
+				ColorPreview.Position = UDim2.new(0, 145, 0, 10);
+				ColorPreview.Size = UDim2.new(0, 45, 0, 25);
+				ColorPreview.ZIndex = 101;
+
+				UICornerPreview.CornerRadius = UDim.new(0, 4);
+				UICornerPreview.Parent = ColorPreview;
+
+				UIStrokePreview.Color = NeverZen.Theme.StrokeColor;
+				UIStrokePreview.Parent = ColorPreview;
+
+				-- RGB Inputs
+				RGBInputFrame.Name = NeverZen:RandomString();
+				RGBInputFrame.Parent = ColorPickerPopup;
+				RGBInputFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255);
+				RGBInputFrame.BackgroundTransparency = 1.000;
+				RGBInputFrame.Position = UDim2.new(0, 10, 0, 120);
+				RGBInputFrame.Size = UDim2.new(1, -20, 0, 25);
+				RGBInputFrame.ZIndex = 101;
+
+				UIListLayoutRGB.Parent = RGBInputFrame;
+				UIListLayoutRGB.FillDirection = Enum.FillDirection.Horizontal;
+				UIListLayoutRGB.SortOrder = Enum.SortOrder.LayoutOrder;
+				UIListLayoutRGB.Padding = UDim.new(0, 5);
+
+				local function createRGBInput(labelText, value)
+					local inputFrame = Instance.new("Frame");
+					local label = Instance.new("TextLabel");
+					local textBox = Instance.new("TextBox");
+					local UIStrokeInput = Instance.new("UIStroke");
+					local UICornerInput = Instance.new("UICorner");
+					
+					inputFrame.Name = NeverZen:RandomString();
+					inputFrame.Parent = RGBInputFrame;
+					inputFrame.BackgroundColor3 = NeverZen.Theme.BackgroundColor;
+					inputFrame.Size = UDim2.new(0.32, 0, 1, 0);
+					inputFrame.ZIndex = 101;
+					
+					label.Name = NeverZen:RandomString();
+					label.Parent = inputFrame;
+					label.BackgroundColor3 = Color3.fromRGB(255, 255, 255);
+					label.BackgroundTransparency = 1.000;
+					label.Size = UDim2.new(1, 0, 0, 10);
+					label.Font = Enum.Font.GothamMedium;
+					label.Text = labelText;
+					label.TextColor3 = Color3.fromRGB(255, 255, 255);
+					label.TextSize = 10;
+					label.TextTransparency = 0.250;
+					label.ZIndex = 102;
+					
+					textBox.Name = NeverZen:RandomString();
+					textBox.Parent = inputFrame;
+					textBox.BackgroundColor3 = NeverZen.Theme.BackgroundColor2;
+					textBox.Position = UDim2.new(0, 0, 0, 12);
+					textBox.Size = UDim2.new(1, 0, 0, 13);
+					textBox.Font = Enum.Font.GothamMedium;
+					textBox.Text = tostring(value);
+					textBox.TextColor3 = Color3.fromRGB(255, 255, 255);
+					textBox.TextSize = 12;
+					textBox.ZIndex = 102;
+					
+					UICornerInput.CornerRadius = UDim.new(0, 3);
+					UICornerInput.Parent = textBox;
+					
+					UIStrokeInput.Color = NeverZen.Theme.StrokeColor;
+					UIStrokeInput.Parent = textBox;
+					
+					return textBox;
+				end;
+				
+				local RInput = createRGBInput("R", math.floor(config.Default.R * 255));
+				local GInput = createRGBInput("G", math.floor(config.Default.G * 255));
+				local BInput = createRGBInput("B", math.floor(config.Default.B * 255));
+				
+				-- Hex Input
+				HexInputFrame.Name = NeverZen:RandomString();
+				HexInputFrame.Parent = ColorPickerPopup;
+				HexInputFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255);
+				HexInputFrame.BackgroundTransparency = 1.000;
+				HexInputFrame.Position = UDim2.new(0, 10, 0, 150);
+				HexInputFrame.Size = UDim2.new(1, -20, 0, 25);
+				HexInputFrame.ZIndex = 101;
+				
+				HexLabel.Name = NeverZen:RandomString();
+				HexLabel.Parent = HexInputFrame;
+				HexLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255);
+				HexLabel.BackgroundTransparency = 1.000;
+				HexLabel.Size = UDim2.new(0, 25, 0, 10);
+				HexLabel.Font = Enum.Font.GothamMedium;
+				HexLabel.Text = "HEX";
+				HexLabel.TextColor3 = Color3.fromRGB(255, 255, 255);
+				HexLabel.TextSize = 10;
+				HexLabel.TextTransparency = 0.250;
+				HexLabel.ZIndex = 101;
+				
+				HexTextBox.Name = NeverZen:RandomString();
+				HexTextBox.Parent = HexInputFrame;
+				HexTextBox.BackgroundColor3 = NeverZen.Theme.BackgroundColor2;
+				HexTextBox.Position = UDim2.new(0, 0, 0, 12);
+				HexTextBox.Size = UDim2.new(1, 0, 0, 13);
+				HexTextBox.Font = Enum.Font.GothamMedium;
+				HexTextBox.Text = "#FFFFFF";
+				HexTextBox.TextColor3 = Color3.fromRGB(255, 255, 255);
+				HexTextBox.TextSize = 12;
+				HexTextBox.ZIndex = 101;
+				
+				local HexUICorner = Instance.new("UICorner");
+				HexUICorner.CornerRadius = UDim.new(0, 3);
+				HexUICorner.Parent = HexTextBox;
+				
+				local HexUIStroke = Instance.new("UIStroke");
+				HexUIStroke.Color = NeverZen.Theme.StrokeColor;
+				HexUIStroke.Parent = HexTextBox;
+				
+				-- Preset Colors
+				PresetColorsFrame.Name = NeverZen:RandomString();
+				PresetColorsFrame.Parent = ColorPickerPopup;
+				PresetColorsFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255);
+				PresetColorsFrame.BackgroundTransparency = 1.000;
+				PresetColorsFrame.Position = UDim2.new(0, 10, 0, 180);
+				PresetColorsFrame.Size = UDim2.new(1, -20, 0, 25);
+				PresetColorsFrame.ZIndex = 101;
+				
+				UIListLayoutPresets.Parent = PresetColorsFrame;
+				UIListLayoutPresets.FillDirection = Enum.FillDirection.Horizontal;
+				UIListLayoutPresets.SortOrder = Enum.SortOrder.LayoutOrder;
+				UIListLayoutPresets.Padding = UDim.new(0, 5);
+				
+				for _, color in ipairs(config.PresetColors) do
+					createPresetColorButton(color);
+				end;
+
+				DropShadowPopup.Name = NeverZen:RandomString();
+				DropShadowPopup.Parent = ColorPickerPopup;
+				DropShadowPopup.AnchorPoint = Vector2.new(0.5, 0.5);
+				DropShadowPopup.BackgroundTransparency = 1.000;
+				DropShadowPopup.BorderSizePixel = 0;
+				DropShadowPopup.Position = UDim2.new(0.5, 0, 0.5, 0);
+				DropShadowPopup.Size = UDim2.new(1, 47, 1, 47);
+				DropShadowPopup.ZIndex = 99;
+				DropShadowPopup.Image = "rbxassetid://6015897843";
+				DropShadowPopup.ImageColor3 = Color3.fromRGB(0, 0, 0);
+				DropShadowPopup.ImageTransparency = 0.500;
+				DropShadowPopup.ScaleType = Enum.ScaleType.Slice;
+				DropShadowPopup.SliceCenter = Rect.new(49, 49, 450, 450);
+
+				-- Color picker logic
+				local currentColor = config.Default;
+				local hue = 0;
+				local saturation = 1;
+				local value = 1;
+				
+				local function rgbToHsv(r, g, b)
+					local max = math.max(r, g, b);
+					local min = math.min(r, g, b);
+					local h, s, v;
+					v = max;
+					
+					local d = max - min;
+					if max == 0 then
+						s = 0;
+					else
+						s = d / max;
+					end;
+					
+					if max == min then
+						h = 0;
+					else
+						if max == r then
+							h = (g - b) / d;
+							if g < b then
+								h = h + 6;
+							end;
+						elseif max == g then
+							h = (b - r) / d + 2;
+						elseif max == b then
+							h = (r - g) / d + 4;
+						end;
+						h = h / 6;
+					end;
+					
+					return h, s, v;
+				end;
+				
+				local function hsvToRgb(h, s, v)
+					local r, g, b;
+					
+					local i = math.floor(h * 6);
+					local f = h * 6 - i;
+					local p = v * (1 - s);
+					local q = v * (1 - f * s);
+					local t = v * (1 - (1 - f) * s);
+					
+					i = i % 6;
+					
+					if i == 0 then
+						r, g, b = v, t, p;
+					elseif i == 1 then
+						r, g, b = q, v, p;
+					elseif i == 2 then
+						r, g, b = p, v, t;
+					elseif i == 3 then
+						r, g, b = p, q, v;
+					elseif i == 4 then
+						r, g, b = t, p, v;
+					elseif i == 5 then
+						r, g, b = v, p, q;
+					end;
+					
+					return Color3.new(r, g, b);
+				end;
+				
+				local function updateFromRgb()
+					local r = math.clamp(tonumber(RInput.Text) or 0, 0, 255) / 255;
+					local g = math.clamp(tonumber(GInput.Text) or 0, 0, 255) / 255;
+					local b = math.clamp(tonumber(BInput.Text) or 0, 0, 255) / 255;
+					
+					hue, saturation, value = rgbToHsv(r, g, b);
+					currentColor = Color3.new(r, g, b);
+					updateUI();
+					config.Callback(currentColor, config);
+				end;
+				
+				local function updateFromHex()
+					local hex = HexTextBox.Text:gsub("#", "");
+					if hex:len() == 6 then
+						local r = tonumber("0x"..hex:sub(1, 2)) or 0;
+						local g = tonumber("0x"..hex:sub(3, 4)) or 0;
+						local b = tonumber("0x"..hex:sub(5, 6)) or 0;
+						
+						currentColor = Color3.fromRGB(r, g, b);
+						hue, saturation, value = rgbToHsv(currentColor.R, currentColor.G, currentColor.B);
+						updateUI();
+						config.Callback(currentColor, config);
+					end;
+				end;
+				
+				local function updateUI()
+					-- Update color previews
+					colorPreview.BackgroundColor3 = currentColor;
+					ColorPreview.BackgroundColor3 = currentColor;
+					
+					-- Update RGB inputs
+					RInput.Text = tostring(math.floor(currentColor.R * 255));
+					GInput.Text = tostring(math.floor(currentColor.G * 255));
+					BInput.Text = tostring(math.floor(currentColor.B * 255));
+					
+					-- Update HEX input
+					local r = string.format("%02X", math.floor(currentColor.R * 255));
+					local g = string.format("%02X", math.floor(currentColor.G * 255));
+					local b = string.format("%02X", math.floor(currentColor.B * 255));
+					HexTextBox.Text = "#" .. r .. g .. b;
+					
+					-- Update color wheel selector position
+					local x = saturation * 100;
+					local y = (1 - value) * 100;
+					ColorWheelSelector.Position = UDim2.new(0, x, 0, y);
+					
+					-- Update hue slider selector position
+					local hueY = hue * 100;
+					HueSliderSelector.Position = UDim2.new(0.5, 0, 0, hueY);
+				end;
+				
+				local function setColor(color)
+					currentColor = color;
+					hue, saturation, value = rgbToHsv(color.R, color.G, color.B);
+					updateUI();
+					config.Callback(currentColor, config);
+				end;
+				
+				-- Initialize
+				hue, saturation, value = rgbToHsv(config.Default.R, config.Default.G, config.Default.B);
+				updateUI();
+				
+				-- Color wheel interaction
+				local isColorWheelDragging = false;
+				ColorWheelFrame.InputBegan:Connect(function(input)
+					if input.UserInputType == Enum.UserInputType.MouseButton1 then
+						isColorWheelDragging = true;
+						local pos = ColorWheelFrame.AbsolutePosition;
+						local size = ColorWheelFrame.AbsoluteSize;
+						local mousePos = Services.UserInputService:GetMouseLocation();
+						
+						local relativeX = math.clamp(mousePos.X - pos.X, 0, size.X);
+						local relativeY = math.clamp(mousePos.Y - pos.Y, 0, size.Y);
+						
+						saturation = relativeX / size.X;
+						value = 1 - (relativeY / size.Y);
+						
+						currentColor = hsvToRgb(hue, saturation, value);
+						updateUI();
+						config.Callback(currentColor, config);
+					end;
+				end);
+				
+				Services.UserInputService.InputChanged:Connect(function(input)
+					if isColorWheelDragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+						local pos = ColorWheelFrame.AbsolutePosition;
+						local size = ColorWheelFrame.AbsoluteSize;
+						local mousePos = Services.UserInputService:GetMouseLocation();
+						
+						local relativeX = math.clamp(mousePos.X - pos.X, 0, size.X);
+						local relativeY = math.clamp(mousePos.Y - pos.Y, 0, size.Y);
+						
+						saturation = relativeX / size.X;
+						value = 1 - (relativeY / size.Y);
+						
+						currentColor = hsvToRgb(hue, saturation, value);
+						updateUI();
+						config.Callback(currentColor, config);
+					elseif isHueSliderDragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+						local pos = HueSliderFrame.AbsolutePosition;
+						local size = HueSliderFrame.AbsoluteSize;
+						local mousePos = Services.UserInputService:GetMouseLocation();
+						
+						local relativeY = math.clamp(mousePos.Y - pos.Y, 0, size.Y);
+						hue = relativeY / size.Y;
+						
+						currentColor = hsvToRgb(hue, saturation, value);
+						updateUI();
+						config.Callback(currentColor, config);
+					end;
+				end);
+				
+				Services.UserInputService.InputEnded:Connect(function(input)
+					if input.UserInputType == Enum.UserInputType.MouseButton1 then
+						isColorWheelDragging = false;
+						isHueSliderDragging = false;
+					end;
+				end);
+				
+				-- Hue slider interaction
+				local isHueSliderDragging = false;
+				HueSliderFrame.InputBegan:Connect(function(input)
+					if input.UserInputType == Enum.UserInputType.MouseButton1 then
+						isHueSliderDragging = true;
+						local pos = HueSliderFrame.AbsolutePosition;
+						local size = HueSliderFrame.AbsoluteSize;
+						local mousePos = Services.UserInputService:GetMouseLocation();
+						
+						local relativeY = math.clamp(mousePos.Y - pos.Y, 0, size.Y);
+						hue = relativeY / size.Y;
+						
+						currentColor = hsvToRgb(hue, saturation, value);
+						updateUI();
+						config.Callback(currentColor, config);
+					end;
+				end);
+				
+				-- RGB input events
+				RInput.FocusLost:Connect(function()
+					updateFromRgb();
+				end);
+				
+				GInput.FocusLost:Connect(function()
+					updateFromRgb();
+				end);
+				
+				BInput.FocusLost:Connect(function()
+					updateFromRgb();
+				end);
+				
+				-- HEX input event
+				HexTextBox.FocusLost:Connect(function()
+					updateFromHex();
+				end);
+				
+				-- Popup management
+				Services.UserInputService.InputBegan:Connect(function(input)
+					if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+						if not NeverZen:IsMouseOverFrame(ColorPickerPopup) and ColorPickerPopup:GetAttribute('OPENED') then
+							ColorPickerPopup:SetAttribute('OPENED', false);
+							TweenService:Create(ColorPickerPopup, TweenInfo.new(0.2), {
+								Size = UDim2.new(0, 200, 0, 0)
+							}):Play();
+						end;
+					end;
+				end);
+				
+				RunService.Stepped:Connect(function()
+					if ColorPickerPopup:GetAttribute('OPENED') then
+						TweenService:Create(ColorPickerPopup, TweenInfo.new(0.1), {
+							Position = UDim2.fromOffset(sys.AbsolutePosition.X - 100, sys.AbsolutePosition.Y + 20),
+							Size = UDim2.new(0, 200, 0, 210)
+						}):Play();
+					else
+						ColorPickerPopup.Position = UDim2.fromOffset(sys.AbsolutePosition.X - 100, sys.AbsolutePosition.Y + 20);
+					end;
+				end);
+				
+				-- Open color picker on click
+				local colorpickerButton = NeverZen:NewInput(Colorpicker);
+				colorpickerButton.MouseButton1Click:Connect(function()
+					if not Content.Enabled or not Content.Parent then
+						return;
+					end;
+					
+					ColorPickerPopup:SetAttribute('OPENED', true);
+					TweenService:Create(ColorPickerPopup, TweenInfo.new(0.2), {
+						Size = UDim2.new(0, 200, 0, 210)
+					}):Play();
+					ColorPickerPopup.Visible = true;
+				end);
+
+				return {
+					SetColor = function(self, newColor)
+						setColor(newColor);
+					end,
+					
+					SetValue = function(self, newColor)
+						setColor(newColor);
+					end,
+					
+					GetColor = function(self)
+						return currentColor;
+					end,
+					
+					SetPresets = function(self, newPresets)
+						config.PresetColors = newPresets;
+						for _, child in ipairs(PresetColorsFrame:GetChildren()) do
+							if child:IsA("Frame") then
+								child:Destroy();
+							end;
+						end;
+						for _, color in ipairs(newPresets) do
+							createPresetColorButton(color);
+						end;
+					end,
+					
+					Visible = function(self, value)
+						Colorpicker.Visible = value;
+					end,
+					
+					Fire = config.Callback
+				};
+			end;
+
 			function SectionSignal:AddDropdown(config)
 				config = config or {};
 				config.Name = config.Name or "Dropdown";
