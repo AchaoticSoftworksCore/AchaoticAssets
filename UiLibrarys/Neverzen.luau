@@ -3665,7 +3665,9 @@ function NeverZen:CreateNotifier()
 				local Tween = TweenService:Create(Notify,TweenInfo.new(0.1),{
 				Size = UDim2.new(0, 55,0,0,55)
 				}):Play()
-				Tween.Completed:Connect(function()Notify:Destroy()end)
+				Tween.Completed:Connect(function()
+					Notify:Destroy()
+				end)
 			end)
 		end,
 	}
