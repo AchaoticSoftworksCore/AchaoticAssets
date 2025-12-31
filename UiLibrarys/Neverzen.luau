@@ -3665,7 +3665,7 @@ function NeverZen:CreateNotifier()
 				local Tween = TweenService:Create(Notify,TweenInfo.new(0.1),{
 				Size = UDim2.new(0, 55,0,0,55)
 				}):Play()
-				task.wait(0.1)
+				task.wait(.1)
 				Notify:Destroy()
 			end)
 		end,
