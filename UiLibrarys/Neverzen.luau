@@ -3661,12 +3661,11 @@ function NeverZen:CreateNotifier()
 			}):Play()
 
 
-			task.delay((duration - 0.1) or 5,function()
-				TweenService:Create(Notify,TweenInfo.new(0.1),{
+			task.delay(((duration or 5) - 0.1),function()
+				local Tween = TweenService:Create(Notify,TweenInfo.new(0.1),{
 				Size = UDim2.new(0, 55,0,0,55)
 				}):Play()
-				task.wait(0.1)
-				Notify:Destroy()
+				Tween.Completed:Connect(Notify.Destroy)
 			end)
 		end,
 	}
