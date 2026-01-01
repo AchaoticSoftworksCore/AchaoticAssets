@@ -2406,7 +2406,7 @@ function NeverZen.new(config)
 				con.BorderColor3 = Color3.fromRGB(0, 0, 0)
 				con.BorderSizePixel = 0
 				con.Position = UDim2.new(1, -40, 0.5, 0) -- Moved left from -32 to -40
-				con.Size = UDim2.new(1, -140, 1, -2) -- Thinner from -125 to -140
+				con.Size = UDim2.new(1, -140, 1, -1) -- Thinner from -125 to -140
 
 				UICorner_2.CornerRadius = UDim.new(1, 0)
 				UICorner_2.Parent = con
