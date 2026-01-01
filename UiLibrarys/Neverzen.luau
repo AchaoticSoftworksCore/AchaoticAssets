@@ -2329,18 +2329,15 @@ function NeverZen.new(config)
 				config.Callback = config.Callback or function() end;
 
 				local Slider = Instance.new("Frame")
-				local value = Instance.new("Frame")
-				local UICorner = Instance.new("UICorner")
-				local LabelValue = Instance.new("TextLabel")
-				local UIStroke = Instance.new("UIStroke")
 				local Label = Instance.new("TextLabel")
+				local value = Instance.new("TextLabel")
 				local con = Instance.new("Frame")
 				local UICorner_2 = Instance.new("UICorner")
-				local UIStroke_2 = Instance.new("UIStroke")
 				local block = Instance.new("Frame")
 				local UICorner_3 = Instance.new("UICorner")
-				local move = Instance.new("Frame")
+				local thumb = Instance.new("Frame")
 				local UICorner_4 = Instance.new("UICorner")
+				local UIStroke = Instance.new("UIStroke")
 
 				table.insert(itemForSearch,{
 					Frame = Slider,
@@ -2353,35 +2350,7 @@ function NeverZen.new(config)
 				Slider.BackgroundTransparency = 1.000
 				Slider.BorderColor3 = Color3.fromRGB(0, 0, 0)
 				Slider.BorderSizePixel = 0
-				Slider.Size = UDim2.new(1, -5, 0, 22) -- Reduced from 25 to 22
-
-				value.Name = "value"
-				value.Parent = Slider
-				value.AnchorPoint = Vector2.new(1, 0.5)
-				value.BackgroundColor3 = NeverZen.Theme.BackgroundColor
-				value.BorderColor3 = Color3.fromRGB(0, 0, 0)
-				value.BorderSizePixel = 0
-				value.Position = UDim2.new(1, -3, 0.5, 0)
-				value.Size = UDim2.new(0, 35, 0, 15) -- Optimized width
-
-				UICorner.CornerRadius = UDim.new(0, 4)
-				UICorner.Parent = value
-
-				LabelValue.Name = "LabelValue"
-				LabelValue.Parent = value
-				LabelValue.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-				LabelValue.BackgroundTransparency = 1.000
-				LabelValue.BorderColor3 = Color3.fromRGB(0, 0, 0)
-				LabelValue.BorderSizePixel = 0
-				LabelValue.Size = UDim2.new(1, 0, 1, 0)
-				LabelValue.Font = Enum.Font.GothamMedium
-				LabelValue.Text = tostring(config.Default)..tostring(config.Type)
-				LabelValue.TextColor3 = Color3.fromRGB(255, 255, 255)
-				LabelValue.TextSize = 10.000
-				LabelValue.TextTransparency = 0.250
-
-				UIStroke.Color = NeverZen.Theme.StrokeColor
-				UIStroke.Parent = value
+				Slider.Size = UDim2.new(1, -5, 0, 25)
 
 				Label.Name = "Label"
 				Label.Parent = Slider
@@ -2391,7 +2360,7 @@ function NeverZen.new(config)
 				Label.BorderColor3 = Color3.fromRGB(0, 0, 0)
 				Label.BorderSizePixel = 0
 				Label.Position = UDim2.new(0, 5, 0.5, 0)
-				Label.Size = UDim2.new(1, -40, 0.649999976, 0) -- Adjusted from -25 to -40
+				Label.Size = UDim2.new(1, -30, 0.649999976, 0)
 				Label.Font = Enum.Font.GothamMedium
 				Label.Text = config.Name
 				Label.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -2399,20 +2368,34 @@ function NeverZen.new(config)
 				Label.TextTransparency = 0.250
 				Label.TextXAlignment = Enum.TextXAlignment.Left
 
+				value.Name = "value"
+				value.Parent = Slider
+				value.AnchorPoint = Vector2.new(1, 0.5)
+				value.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+				value.BackgroundTransparency = 1.000
+				value.BorderColor3 = Color3.fromRGB(0, 0, 0)
+				value.BorderSizePixel = 0
+				value.Position = UDim2.new(1, -3, 0.5, 0)
+				value.Size = UDim2.new(0, 35, 0, 15)
+				value.Font = Enum.Font.GothamMedium
+				value.Text = tostring(config.Default)..tostring(config.Type)
+				value.TextColor3 = NeverZen.Theme.Hightlight
+				value.TextSize = 12.000
+				value.TextTransparency = 0.250
+				value.TextXAlignment = Enum.TextXAlignment.Right
+
 				con.Name = "con"
 				con.Parent = Slider
-				con.AnchorPoint = Vector2.new(1, 0.5)
+				con.AnchorPoint = Vector2.new(0, 1)
 				con.BackgroundColor3 = NeverZen.Theme.BackgroundColor
 				con.BorderColor3 = Color3.fromRGB(0, 0, 0)
 				con.BorderSizePixel = 0
-				con.Position = UDim2.new(1, -40, 0.5, 0) -- Moved left from -32 to -40
-				con.Size = UDim2.new(1, -140, 0.200000003, 0) -- Thinner from -125 to -140
+				con.Position = UDim2.new(0, 5, 1, -5)
+				con.Size = UDim2.new(1, -10, 0, 4)
+				con.ZIndex = 10
 
-				UICorner_2.CornerRadius = UDim.new(1, 0)
+				UICorner_2.CornerRadius = UDim.new(0, 2)
 				UICorner_2.Parent = con
-
-				UIStroke_2.Color = NeverZen.Theme.StrokeColor
-				UIStroke_2.Parent = con
 
 				block.Name = "block"
 				block.Parent = con
@@ -2420,62 +2403,79 @@ function NeverZen.new(config)
 				block.BorderColor3 = Color3.fromRGB(0, 0, 0)
 				block.BorderSizePixel = 0
 				block.Size = UDim2.new(((config.Default - config.Min) / (config.Max - config.Min)), 0, 1, 0)
-				block.ZIndex = 15
-				block.Active = true
+				block.ZIndex = 11
 
-				UICorner_3.CornerRadius = UDim.new(1, 0)
+				UICorner_3.CornerRadius = UDim.new(0, 2)
 				UICorner_3.Parent = block
 
-				move.Name = "move"
-				move.Parent = block
-				move.AnchorPoint = Vector2.new(0.5, 0.5)
-				move.BackgroundColor3 = NeverZen.Theme.Hightlight
-				move.BorderColor3 = Color3.fromRGB(0, 0, 0)
-				move.BorderSizePixel = 0
-				move.Position = UDim2.new(1, 0, 0.5, 0)
-				move.Size = UDim2.new(2, 0, 2, 0)
-				move.SizeConstraint = Enum.SizeConstraint.RelativeYY
+				thumb.Name = "thumb"
+				thumb.Parent = Slider
+				thumb.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+				thumb.BorderColor3 = Color3.fromRGB(0, 0, 0)
+				thumb.BorderSizePixel = 0
+				thumb.Position = UDim2.new(((config.Default - config.Min) / (config.Max - config.Min)), -6, 1, -8)
+				thumb.Size = UDim2.new(0, 12, 0, 12)
+				thumb.ZIndex = 12
 
 				UICorner_4.CornerRadius = UDim.new(1, 0)
-				UICorner_4.Parent = move
+				UICorner_4.Parent = thumb
+
+				UIStroke.Color = NeverZen.Theme.Hightlight
+				UIStroke.Thickness = 2
+				UIStroke.Parent = thumb
 
 				local IsHold = false;
 
 				local updateSIZE = function()
 					local test = "2."..string.rep("4",(config.Round or 0) + 1)..tostring(config.Type);
-					local scale = TextService:GetTextSize(test,LabelValue.TextSize,LabelValue.Font,Vector2.new(math.huge,math.huge));
-					local scalelab = TextService:GetTextSize(Label.Text,Label.TextSize,Label.Font,Vector2.new(math.huge,math.huge));
+					local scale = TextService:GetTextSize(test, value.TextSize, value.Font, Vector2.new(math.huge, math.huge));
+					local scalelab = TextService:GetTextSize(Label.Text, Label.TextSize, Label.Font, Vector2.new(math.huge, math.huge));
 
-					-- Use dynamic sizing with minimums
-					local valueWidth = math.max(scale.X + 10, 35) -- Minimum value width
-					local labelWidth = scalelab.X + 10 -- Label width with padding
-					
+					local valueWidth = math.max(scale.X + 5, 35)
 					value.Size = UDim2.new(0, valueWidth, 0, 15)
-					con.Position = UDim2.new(1, -(valueWidth + 8), 0.5, 0)
-					con.Size = UDim2.new(1, -(labelWidth + valueWidth + 15), 0.200000003, 0) -- Updated calculation
+					value.Position = UDim2.new(1, -3, 0.5, 0)
+					Label.Size = UDim2.new(1, -(valueWidth + 5), 0.649999976, 0)
+					
+					local trackStart = Label.AbsoluteSize.X + 10
+					local trackWidth = Slider.AbsoluteSize.X - trackStart - 5
+					
+					if trackWidth > 0 then
+						con.Position = UDim2.new(0, trackStart, 1, -5)
+						con.Size = UDim2.new(0, trackWidth, 0, 4)
+					end
 				end
 
 				updateSIZE()
 
 				local function update(Input)
-					local SizeScale = math.clamp((((Input.Position.X) - con.AbsolutePosition.X) / con.AbsoluteSize.X), 0, 1);
-					local Main = ((config.Max - config.Min) * SizeScale) + config.Min;
-					local Value = NeverZen:Rounding(Main,config.Round);
-					local normalized = (Value - config.Min) / (config.Max - config.Min);
+					local trackStart = con.AbsolutePosition.X
+					local trackWidth = con.AbsoluteSize.X
+					local mouseX = Input.Position.X
+					
+					local relativeX = math.clamp(mouseX - trackStart, 0, trackWidth)
+					local SizeScale = relativeX / trackWidth
+					local Main = ((config.Max - config.Min) * SizeScale) + config.Min
+					local Value = NeverZen:Rounding(Main, config.Round)
+					local normalized = (Value - config.Min) / (config.Max - config.Min)
 
-					TweenService:Create(block , TweenInfo.new(0.04),{
-						Size = UDim2.new(normalized, 0, 1, 0)
-					}):Play();
+					block.Size = UDim2.new(normalized, 0, 1, 0)
+					thumb.Position = UDim2.new(normalized, -6, 1, -8)
 
-					LabelValue.Text = tostring(Value)..tostring(config.Type)
+					value.Text = tostring(Value)..tostring(config.Type)
 					updateSIZE()
-					config.Callback(Value,config)
-				end;
+					config.Callback(Value, config)
+				end
 
 				con.InputBegan:Connect(function(Input)
 					if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
 						IsHold = true
 						update(Input)
+					end
+				end)
+
+				thumb.InputBegan:Connect(function(Input)
+					if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+						IsHold = true
 					end
 				end)
 
@@ -2485,33 +2485,92 @@ function NeverZen.new(config)
 					end
 				end)
 
+				thumb.InputEnded:Connect(function(Input)
+					if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+						IsHold = false
+					end
+				end)
+
 				Services.UserInputService.InputChanged:Connect(function(Input)
 					if IsHold then
-						if (Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch)  then
+						if (Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch) then
 							update(Input)
 						end
 
 						if Services.UserInputService.TouchEnabled then
 							if not NeverZen:IsMouseOverFrame(Slider) then
 								IsHold = false
-							end;
-						end;
+							end
+						end
 					end
-				end);
+				end)
+
+				-- Add hover effects for thumb
+				local thumbButton = Instance.new("TextButton")
+				thumbButton.Name = NeverZen:RandomString()
+				thumbButton.Parent = thumb
+				thumbButton.BackgroundTransparency = 1
+				thumbButton.Size = UDim2.new(2, 0, 2, 0)
+				thumbButton.Position = UDim2.new(-0.5, 0, -0.5, 0)
+				thumbButton.AnchorPoint = Vector2.new(0.5, 0.5)
+				thumbButton.Text = ""
+				thumbButton.ZIndex = 13
+
+				thumbButton.MouseEnter:Connect(function()
+					TweenService:Create(thumb, TweenInfo.new(0.1), {
+						Size = UDim2.new(0, 16, 0, 16),
+						Position = UDim2.new(thumb.Position.X.Scale, -8, 1, -9)
+					}):Play()
+				end)
+
+				thumbButton.MouseLeave:Connect(function()
+					if not IsHold then
+						TweenService:Create(thumb, TweenInfo.new(0.1), {
+							Size = UDim2.new(0, 12, 0, 12),
+							Position = UDim2.new(thumb.Position.X.Scale, -6, 1, -8)
+						}):Play()
+					end
+				end)
+
+				-- Add animation when dragging ends
+				Services.UserInputService.InputEnded:Connect(function(Input)
+					if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+						if IsHold then
+							TweenService:Create(thumb, TweenInfo.new(0.1), {
+								Size = UDim2.new(0, 12, 0, 12)
+							}):Play()
+							IsHold = false
+						end
+					end
+				end)
 
 				return {
-					SetValue = function(self,newvalue)
-						config.Default = newvalue;
-						block.Size = UDim2.new(((config.Default - config.Min) / (config.Max - config.Min)), 0, 1, 0)
-						LabelValue.Text = tostring(config.Default)..tostring(config.Type)
+					SetValue = function(self, newvalue)
+						newvalue = math.clamp(newvalue, config.Min, config.Max)
+						config.Default = newvalue
+						local normalized = (newvalue - config.Min) / (config.Max - config.Min)
+						
+						TweenService:Create(block, TweenInfo.new(0.2), {
+							Size = UDim2.new(normalized, 0, 1, 0)
+						}):Play()
+						
+						TweenService:Create(thumb, TweenInfo.new(0.2), {
+							Position = UDim2.new(normalized, -6, 1, -8)
+						}):Play()
+						
+						value.Text = tostring(newvalue)..tostring(config.Type)
 						updateSIZE()
+						config.Callback(newvalue, config)
 					end,
 					Fire = config.Callback,
-					Visible = function(self,value)
-						Slider.Visible = value;
+					Visible = function(self, value)
+						Slider.Visible = value
 					end,
-				};
-			end;
+					GetValue = function(self)
+						return config.Default
+					end
+				}
+			end
 
 			function SectionSignal:AddKeybind(config)
 				config = config or {};
