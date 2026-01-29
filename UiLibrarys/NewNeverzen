@@ -1,1115 +1,1198 @@
---[[
-    NEVERZEN UI LIBRARY - ENHANCED VERSION
-    Modern, polished UI library for Roblox
-    Features: Multiple themes, smooth animations, modern components
-]]
+cloneref = cloneref or function(...) return ... end;
+cloenfunction = cloenfunction or function(...) return ... end;
+hookfunction = hookfunction or function(a,b) return a end;
+
+export type Services = {
+	UserInputService : UserInputService,
+	Players : Players,
+	ContentProvider : ContentProvider,
+	CoreGui : PlayerGui
+};
 
 local NeverZen = {
-	Version = '2.0-Enhanced'
-}
+	Version = '1.4 - Rayfield Enhanced'
+};
 
--- Services
-local TweenService = game:GetService('TweenService')
-local UserInputService = game:GetService('UserInputService')
-local RunService = game:GetService('RunService')
-local Players = game:GetService('Players')
-local TextService = game:GetService('TextService')
+NeverZen.Services = {
+	UserInputService = cloneref(game:GetService('UserInputService')),
+	Players = cloneref(game:GetService('Players')),
+	ContentProvider = cloneref(game:GetService('ContentProvider')),
+	CoreGui = cloneref(game:FindFirstChild('CoreGui')),
+};
 
-local LocalPlayer = Players.LocalPlayer
-local Mouse = LocalPlayer:GetMouse()
-local CurrentCamera = workspace.CurrentCamera
+local TextService = cloneref(game:GetService('TextService'));
+local TweenService = cloneref(game:GetService('TweenService'));
+local CurrentCamera = workspace.CurrentCamera;
+local RunService = cloneref(game:GetService('RunService'));
 
--- Utility Functions
-local function RandomString()
-	local chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-	local result = ""
-	for i = 1, 16 do
-		local rand = math.random(1, #chars)
-		result = result .. string.sub(chars, rand, rand)
+local LocalPlayer : Player = NeverZen.Services.Players.LocalPlayer;
+local Mouse = LocalPlayer:GetMouse();
+
+NeverZen.ProtectGui = protect_gui or protectgui or (syn and syn.protect_gui) or function() end;
+NeverZen.Services.CoreGui = (gethui and gethui()) or NeverZen.Services.CoreGui or LocalPlayer.PlayerGui;
+NeverZen.MinimumTabSize = 600;
+
+local Services : Services = NeverZen.Services;
+
+-- Enhanced Modern Theme (Rayfield-inspired)
+NeverZen.Theme = {
+	-- Main Colors
+	Background = Color3.fromRGB(15, 15, 20),
+	BackgroundSecondary = Color3.fromRGB(20, 20, 25),
+	WindowBackgroundColor = Color3.fromRGB(18, 18, 24),
+	
+	-- Accent Colors
+	Accent = Color3.fromRGB(88, 101, 242), -- Discord-like purple
+	AccentDark = Color3.fromRGB(67, 77, 184),
+	AccentLight = Color3.fromRGB(108, 121, 255),
+	
+	-- Element Colors
+	ElementBackground = Color3.fromRGB(25, 25, 32),
+	ElementBackgroundHover = Color3.fromRGB(30, 30, 38),
+	
+	-- Text Colors
+	TextColor = Color3.fromRGB(240, 240, 245),
+	TextColorDark = Color3.fromRGB(160, 160, 170),
+	
+	-- Border & Stroke
+	BorderColor = Color3.fromRGB(40, 40, 50),
+	StrokeColor = Color3.fromRGB(50, 50, 60),
+	
+	-- Toggle Colors
+	ToggleOn = Color3.fromRGB(88, 101, 242),
+	ToggleOff = Color3.fromRGB(40, 40, 50),
+	
+	-- Slider Colors
+	SliderFill = Color3.fromRGB(88, 101, 242),
+	SliderBackground = Color3.fromRGB(30, 30, 38),
+	
+	-- Shadows & Effects
+	ShadowColor = Color3.fromRGB(0, 0, 0),
+	GlowColor = Color3.fromRGB(88, 101, 242),
+};
+
+function NeverZen:IsMouseOverFrame(Frame)
+	local AbsPos, AbsSize = Frame.AbsolutePosition, Frame.AbsoluteSize;
+
+	if Mouse.X >= AbsPos.X and Mouse.X <= AbsPos.X + AbsSize.X and Mouse.Y >= AbsPos.Y and Mouse.Y <= AbsPos.Y + AbsSize.Y then
+		return true;
+	end;
+end;
+
+function NeverZen:Hook()
+	if hookfunc or hookfunction then
+		local hooking = hookfunc or hookfunction or function() end;
+		local newCclosure = newcclosure or function() end;
+		local getconnections = getconnections or function() return {} end;
+
+		hooking(game:GetService('ContentProvider').PreloadAsync,function()
+			return 1;
+		end);
+
+		hooking(game:GetService('ContentProvider').Preload,function()
+			return 2;
+		end);
+
+		hooking(game:GetService('ContentProvider').GetAssetFetchStatus,function()
+			return 3;
+		end);
+	end;
+end;
+
+function NeverZen:NewInput(frame : Frame , call) : TextButton
+	local Bth = Instance.new('TextButton',frame);
+
+	Bth.ZIndex = frame.ZIndex + 10;
+	Bth.Size = UDim2.fromScale(1,1);
+	Bth.BackgroundTransparency = 1;
+	Bth.TextTransparency = 1;
+
+	if call then
+		Bth.MouseButton1Click:Connect(call)
 	end
-	return result
-end
 
-local function Tween(instance, properties, duration, style, direction)
-	local tweenInfo = TweenInfo.new(
-		duration or 0.3,
-		style or Enum.EasingStyle.Quint,
-		direction or Enum.EasingDirection.Out
-	)
-	local tween = TweenService:Create(instance, tweenInfo, properties)
-	tween:Play()
-	return tween
-end
+	return Bth;
+end;
 
-local function CreateCorner(parent, radius)
-	local corner = Instance.new("UICorner")
-	corner.CornerRadius = UDim.new(0, radius or 6)
-	corner.Parent = parent
-	return corner
-end
-
-local function CreateStroke(parent, color, thickness, transparency)
-	local stroke = Instance.new("UIStroke")
-	stroke.Color = color or Color3.fromRGB(255, 255, 255)
-	stroke.Thickness = thickness or 1
-	stroke.Transparency = transparency or 0
-	stroke.Parent = parent
-	return stroke
-end
-
-local function CreateGradient(parent, colors, rotation)
-	local gradient = Instance.new("UIGradient")
-	gradient.Rotation = rotation or 90
-	if colors then
-		gradient.Color = colors
-	end
-	gradient.Parent = parent
-	return gradient
-end
-
--- Lucide Icons (subset for common use)
-local Icons = {
-	["search"] = "rbxassetid://10734943674",
-	["settings"] = "rbxassetid://10734950309",
-	["chevron-down"] = "rbxassetid://10709790948",
-	["chevron-up"] = "rbxassetid://10709791523",
-	["target"] = "rbxassetid://10747377012",
-	["home"] = "rbxassetid://10723407389",
-	["zap"] = "rbxassetid://10747384679",
-	["shield"] = "rbxassetid://10734951847",
-	["users"] = "rbxassetid://10747373426",
-	["x"] = "rbxassetid://10747384394",
-}
-
--- Theme Presets
-NeverZen.Themes = {
-	Default = {
-		WindowBackground = Color3.fromRGB(12, 12, 12),
-		HeaderText = Color3.fromRGB(209, 209, 209),
-		LineColor = Color3.fromRGB(35, 35, 35),
-		Background = Color3.fromRGB(32, 32, 32),
-		Section = Color3.fromRGB(23, 23, 23),
-		Accent = Color3.fromRGB(161, 208, 42),
-		Stroke = Color3.fromRGB(40, 40, 40),
-		Background2 = Color3.fromRGB(20, 20, 20),
-		IconColor = Color3.fromRGB(255, 255, 255),
-	},
-	Neverlose = {
-		WindowBackground = Color3.fromRGB(6, 8, 5),
-		HeaderText = Color3.fromRGB(233, 239, 237),
-		LineColor = Color3.fromRGB(18, 20, 19),
-		Background = Color3.fromRGB(6, 8, 5),
-		Section = Color3.fromRGB(9, 11, 10),
-		Accent = Color3.fromRGB(0, 169, 239),
-		Stroke = Color3.fromRGB(18, 20, 19),
-		Background2 = Color3.fromRGB(10, 14, 13),
-		IconColor = Color3.fromRGB(5, 164, 233),
-	},
-	Fatality = {
-		WindowBackground = Color3.fromRGB(8, 7, 20),
-		HeaderText = Color3.fromRGB(245, 245, 245),
-		LineColor = Color3.fromRGB(54, 47, 86),
-		Background = Color3.fromRGB(11, 10, 26),
-		Section = Color3.fromRGB(17, 14, 36),
-		Accent = Color3.fromRGB(198, 9, 85),
-		Stroke = Color3.fromRGB(54, 47, 86),
-		Background2 = Color3.fromRGB(21, 18, 45),
-		IconColor = Color3.fromRGB(233, 5, 89),
-	},
-	Anyx = {
-		WindowBackground = Color3.fromRGB(17, 17, 17),
-		HeaderText = Color3.fromRGB(245, 245, 245),
-		LineColor = Color3.fromRGB(42, 42, 42),
-		Background = Color3.fromRGB(20, 20, 20),
-		Section = Color3.fromRGB(20, 20, 20),
-		Accent = Color3.fromRGB(81, 195, 206),
-		Stroke = Color3.fromRGB(29, 35, 38),
-		Background2 = Color3.fromRGB(31, 31, 31),
-		IconColor = Color3.fromRGB(128, 174, 172),
-	},
-	Hyperion = {
-		WindowBackground = Color3.fromRGB(23, 26, 29),
-		HeaderText = Color3.fromRGB(211, 34, 35),
-		LineColor = Color3.fromRGB(52, 55, 60),
-		Background = Color3.fromRGB(38, 43, 49),
-		Section = Color3.fromRGB(38, 42, 48),
-		Accent = Color3.fromRGB(197, 29, 29),
-		Stroke = Color3.fromRGB(48, 51, 56),
-		Background2 = Color3.fromRGB(43, 48, 55),
-		IconColor = Color3.fromRGB(220, 221, 222),
-	},
-	Airflow = {
-		WindowBackground = Color3.fromRGB(41, 40, 38),
-		HeaderText = Color3.fromRGB(229, 229, 228),
-		LineColor = Color3.fromRGB(49, 49, 48),
-		Background = Color3.fromRGB(69, 66, 63),
-		Section = Color3.fromRGB(42, 41, 40),
-		Accent = Color3.fromRGB(143, 107, 190),
-		Stroke = Color3.fromRGB(49, 49, 48),
-		Background2 = Color3.fromRGB(46, 46, 44),
-		IconColor = Color3.fromRGB(143, 107, 190),
-	}
-}
-
--- Main Window Creation
-function NeverZen.new(config)
-	config = config or {}
-	config.Name = config.Name or "NEVERZEN"
-	config.Theme = config.Theme or "Default"
-	config.Size = config.Size or UDim2.new(0, 611, 0, 396)
-	config.Acrylic = config.Acrylic ~= false
+-- Modern Ripple Effect
+function NeverZen:CreateRipple(parent, position)
+	local Ripple = Instance.new("Frame")
+	Ripple.Parent = parent
+	Ripple.BackgroundColor3 = NeverZen.Theme.Accent
+	Ripple.BackgroundTransparency = 0.5
+	Ripple.BorderSizePixel = 0
+	Ripple.Size = UDim2.new(0, 0, 0, 0)
+	Ripple.Position = UDim2.new(0, position.X, 0, position.Y)
+	Ripple.AnchorPoint = Vector2.new(0.5, 0.5)
+	Ripple.ZIndex = parent.ZIndex + 100
 	
-	local Window = {}
-	Window.Tabs = {}
-	Window.CurrentTab = nil
-	Window.Theme = NeverZen.Themes[config.Theme] or NeverZen.Themes.Default
-	Window.Visible = true
+	local Corner = Instance.new("UICorner")
+	Corner.CornerRadius = UDim.new(1, 0)
+	Corner.Parent = Ripple
 	
-	-- Create ScreenGui
-	local ScreenGui = Instance.new("ScreenGui")
-	ScreenGui.Name = RandomString()
-	ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-	ScreenGui.ResetOnSpawn = false
-	ScreenGui.Parent = game:GetService("CoreGui")
+	local maxSize = math.max(parent.AbsoluteSize.X, parent.AbsoluteSize.Y) * 2
 	
-	-- Main Frame
-	local MainFrame = Instance.new("Frame")
-	MainFrame.Name = RandomString()
-	MainFrame.Size = UDim2.new(0, 0, 0, 0)
-	MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-	MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-	MainFrame.BackgroundColor3 = Window.Theme.WindowBackground
-	MainFrame.BackgroundTransparency = 0.1
-	MainFrame.BorderSizePixel = 0
-	MainFrame.ClipsDescendants = true
-	MainFrame.Parent = ScreenGui
-	CreateCorner(MainFrame, 4)
-	CreateStroke(MainFrame, Color3.fromRGB(255, 255, 255), 1, 0.95)
+	TweenService:Create(Ripple, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+		Size = UDim2.new(0, maxSize, 0, maxSize),
+		BackgroundTransparency = 1
+	}):Play()
 	
-	-- Animate open
-	Tween(MainFrame, {Size = config.Size}, 0.8, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
-	
-	-- Drop shadow
-	local Shadow = Instance.new("ImageLabel")
-	Shadow.Name = RandomString()
-	Shadow.AnchorPoint = Vector2.new(0.5, 0.5)
-	Shadow.Position = UDim2.new(0.5, 0, 0.5, 0)
-	Shadow.Size = UDim2.new(1, 47, 1, 47)
-	Shadow.BackgroundTransparency = 1
-	Shadow.Image = "rbxassetid://6015897843"
-	Shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
-	Shadow.ImageTransparency = 1
-	Shadow.ScaleType = Enum.ScaleType.Slice
-	Shadow.SliceCenter = Rect.new(49, 49, 450, 450)
-	Shadow.ZIndex = -1
-	Shadow.Parent = MainFrame
-	
-	task.delay(0.3, function()
-		Tween(Shadow, {ImageTransparency = 0.7}, 0.5)
+	task.delay(0.5, function()
+		Ripple:Destroy()
 	end)
+end
+
+-- Add modern glow effect
+function NeverZen:AddGlow(element)
+	local Glow = Instance.new("ImageLabel")
+	Glow.Name = "Glow"
+	Glow.Parent = element
+	Glow.BackgroundTransparency = 1
+	Glow.Size = UDim2.new(1, 40, 1, 40)
+	Glow.Position = UDim2.new(0, -20, 0, -20)
+	Glow.Image = "rbxassetid://5028857084"
+	Glow.ImageColor3 = NeverZen.Theme.GlowColor
+	Glow.ImageTransparency = 0.8
+	Glow.ZIndex = element.ZIndex - 1
+	return Glow
+end
+
+-- Lucide Icons (keeping existing icon library)
+NeverZen.Lucide = {
+	["lucide-accessibility"] = "rbxassetid://10709751939",
+	["lucide-activity"] = "rbxassetid://10709752035",
+	["lucide-air-vent"] = "rbxassetid://10709752131",
+	["lucide-airplay"] = "rbxassetid://10709752254",
+	["lucide-alarm-check"] = "rbxassetid://10709752405",
+	["lucide-alarm-clock"] = "rbxassetid://10709752630",
+	["lucide-alarm-clock-off"] = "rbxassetid://10709752508",
+	["lucide-alarm-minus"] = "rbxassetid://10709752732",
+	["lucide-alarm-plus"] = "rbxassetid://10709752825",
+	["lucide-album"] = "rbxassetid://10709752906",
+	["lucide-alert-circle"] = "rbxassetid://10709752996",
+	["lucide-alert-octagon"] = "rbxassetid://10709753064",
+	["lucide-alert-triangle"] = "rbxassetid://10709753149",
+	["lucide-align-center"] = "rbxassetid://10709753570",
+	["lucide-home"] = "rbxassetid://10723345118",
+	["lucide-settings"] = "rbxassetid://10734950309",
+	["lucide-x"] = "rbxassetid://10747384394",
+	["lucide-menu"] = "rbxassetid://10723407389",
+	["lucide-check"] = "rbxassetid://10709814093",
+	["lucide-chevron-right"] = "rbxassetid://10709818940",
+	["lucide-minimize-2"] = "rbxassetid://10723354969",
+};
+
+function NeverZen:GetIcon(IconName)
+	return NeverZen.Lucide["lucide-" .. tostring(IconName)] or NeverZen.Lucide["lucide-home"];
+end;
+
+function NeverZen:RandomString(len)
+	len = len or 16;
+	local chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+	local str = "";
+	for i = 1, len do
+		local rand = math.random(1, #chars);
+		str = str .. chars:sub(rand, rand);
+	end;
+	return str;
+end;
+
+function NeverZen:CreateWindow(name)
+	name = tostring(name or 'NeverZen Library');
 	
-	-- Header
+	local WindowFrame;
+	local WindowSignal = {
+		Signals = {},
+		Toggle = true,
+		Config = {
+			Scale = UDim2.new(0, 590, 0, 460)
+		}
+	};
+
+	local Content = Instance.new("ScreenGui")
+	WindowFrame = Instance.new("Frame")
+	local UICorner = Instance.new("UICorner")
+	local UIStroke = Instance.new("UIStroke")
 	local Header = Instance.new("Frame")
-	Header.Name = RandomString()
-	Header.Size = UDim2.new(1, 0, 0, 45)
-	Header.BackgroundTransparency = 1
+	local UICorner_2 = Instance.new("UICorner")
+	local Icon = Instance.new("ImageLabel")
+	local Name = Instance.new("TextLabel")
+	local HeaderBtns = Instance.new("Frame")
+	local UIListLayout = Instance.new("UIListLayout")
+	local MinimizeFrame = Instance.new("Frame")
+	local UICorner_3 = Instance.new("UICorner")
+	local Minimize = Instance.new("ImageButton")
+	local ToggleFrame = Instance.new("Frame")
+	local UICorner_4 = Instance.new("UICorner")
+	local Toggle = Instance.new("ImageButton")
+	local TabButtons = Instance.new("Frame")
+	local UIListLayout_2 = Instance.new("UIListLayout")
+	local UIPadding = Instance.new("UIPadding")
+	local Navigation = Instance.new("Frame")
+	local UICorner_5 = Instance.new("UICorner")
+	local Tabs = Instance.new("Frame")
+	local UICorner_6 = Instance.new("UICorner")
+
+	Content.Name = NeverZen:RandomString()
+	Content.Parent = Services.CoreGui
+	Content.ResetOnSpawn = false
+	Content.IgnoreGuiInset = true
+	Content.ZIndexBehavior = Enum.ZIndexBehavior.Global
+
+	NeverZen.ProtectGui(Content)
+
+	-- Main Window with modern styling
+	WindowFrame.Name = NeverZen:RandomString()
+	WindowFrame.Parent = Content
+	WindowFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+	WindowFrame.BackgroundColor3 = NeverZen.Theme.WindowBackgroundColor
+	WindowFrame.BorderSizePixel = 0
+	WindowFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+	WindowFrame.Size = WindowSignal.Config.Scale
+	WindowFrame.ClipsDescendants = true
+
+	-- Modern corner radius
+	UICorner.CornerRadius = UDim.new(0, 12)
+	UICorner.Parent = WindowFrame
+
+	-- Modern stroke with gradient effect
+	UIStroke.Color = NeverZen.Theme.BorderColor
+	UIStroke.Thickness = 1.5
+	UIStroke.Transparency = 0.3
+	UIStroke.Parent = WindowFrame
+
+	-- Add subtle shadow effect
+	local Shadow = Instance.new("ImageLabel")
+	Shadow.Name = "Shadow"
+	Shadow.Parent = WindowFrame
+	Shadow.BackgroundTransparency = 1
+	Shadow.Size = UDim2.new(1, 60, 1, 60)
+	Shadow.Position = UDim2.new(0, -30, 0, -30)
+	Shadow.Image = "rbxassetid://5028857084"
+	Shadow.ImageColor3 = NeverZen.Theme.ShadowColor
+	Shadow.ImageTransparency = 0.7
+	Shadow.ZIndex = WindowFrame.ZIndex - 1
+
+	-- Header with gradient
+	Header.Name = "Header"
+	Header.Parent = WindowFrame
+	Header.BackgroundColor3 = NeverZen.Theme.BackgroundSecondary
 	Header.BorderSizePixel = 0
-	Header.Parent = MainFrame
-	
-	local HeaderTitle = Instance.new("TextLabel")
-	HeaderTitle.Name = RandomString()
-	HeaderTitle.Size = UDim2.new(0, 150, 1, -10)
-	HeaderTitle.Position = UDim2.new(0, 10, 0, 5)
-	HeaderTitle.BackgroundTransparency = 1
-	HeaderTitle.Text = config.Name
-	HeaderTitle.TextColor3 = Window.Theme.HeaderText
-	HeaderTitle.Font = Enum.Font.GothamBold
-	HeaderTitle.TextSize = 14
-	HeaderTitle.TextXAlignment = Enum.TextXAlignment.Left
-	HeaderTitle.Parent = Header
-	
-	local HeaderLine = Instance.new("Frame")
-	HeaderLine.Name = RandomString()
-	HeaderLine.Size = UDim2.new(1, -170, 0, 1)
-	HeaderLine.Position = UDim2.new(0, 170, 1, 0)
-	HeaderLine.AnchorPoint = Vector2.new(0, 1)
-	HeaderLine.BackgroundColor3 = Window.Theme.LineColor
-	HeaderLine.BorderSizePixel = 0
-	HeaderLine.Parent = Header
-	
-	-- Header Controls
-	local HeaderControls = Instance.new("Frame")
-	HeaderControls.Name = RandomString()
-	HeaderControls.Size = UDim2.new(0, 200, 0, 25)
-	HeaderControls.Position = UDim2.new(1, -10, 0.5, 0)
-	HeaderControls.AnchorPoint = Vector2.new(1, 0.5)
-	HeaderControls.BackgroundTransparency = 1
-	HeaderControls.Parent = Header
-	
-	local ControlsList = Instance.new("UIListLayout")
-	ControlsList.FillDirection = Enum.FillDirection.Horizontal
-	ControlsList.HorizontalAlignment = Enum.HorizontalAlignment.Right
-	ControlsList.VerticalAlignment = Enum.VerticalAlignment.Center
-	ControlsList.Padding = UDim.new(0, 5)
-	ControlsList.Parent = HeaderControls
-	
-	-- Search Box
-	local SearchFrame = Instance.new("Frame")
-	SearchFrame.Name = RandomString()
-	SearchFrame.Size = UDim2.new(0, 140, 0, 22)
-	SearchFrame.BackgroundTransparency = 1
-	SearchFrame.Parent = HeaderControls
-	CreateStroke(SearchFrame, Window.Theme.LineColor, 1)
-	CreateCorner(SearchFrame, 4)
-	
-	local SearchBox = Instance.new("TextBox")
-	SearchBox.Name = RandomString()
-	SearchBox.Size = UDim2.new(1, -27, 0.65, 0)
-	SearchBox.Position = UDim2.new(0, 5, 0.5, 0)
-	SearchBox.AnchorPoint = Vector2.new(0, 0.5)
-	SearchBox.BackgroundTransparency = 1
-	SearchBox.Text = ""
-	SearchBox.PlaceholderText = "Search"
-	SearchBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-	SearchBox.PlaceholderColor3 = Color3.fromRGB(255, 255, 255)
-	SearchBox.TextTransparency = 0.4
-	SearchBox.Font = Enum.Font.GothamMedium
-	SearchBox.TextSize = 12
-	SearchBox.TextXAlignment = Enum.TextXAlignment.Left
-	SearchBox.ClearTextOnFocus = false
-	SearchBox.Parent = SearchFrame
-	
-	local SearchIcon = Instance.new("ImageLabel")
-	SearchIcon.Name = RandomString()
-	SearchIcon.Size = UDim2.new(0.8, 0, 0.8, 0)
-	SearchIcon.Position = UDim2.new(1, -20, 0.5, 0)
-	SearchIcon.AnchorPoint = Vector2.new(0.5, 0.5)
-	SearchIcon.BackgroundTransparency = 1
-	SearchIcon.Image = Icons["search"]
-	SearchIcon.ImageTransparency = 0.4
-	SearchIcon.Parent = SearchFrame
-	
-	-- Settings Button
-	local SettingsBtn = Instance.new("ImageButton")
-	SettingsBtn.Name = RandomString()
-	SettingsBtn.Size = UDim2.new(0, 22, 0, 22)
-	SettingsBtn.BackgroundTransparency = 1
-	SettingsBtn.Image = Icons["settings"]
-	SettingsBtn.ImageTransparency = 0.4
-	SettingsBtn.Parent = HeaderControls
-	
-	SettingsBtn.MouseEnter:Connect(function()
-		Tween(SettingsBtn, {ImageTransparency = 0}, 0.2)
+	Header.Size = UDim2.new(1, 0, 0, 50)
+
+	UICorner_2.CornerRadius = UDim.new(0, 12)
+	UICorner_2.Parent = Header
+
+	-- Add gradient to header
+	local HeaderGradient = Instance.new("UIGradient")
+	HeaderGradient.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0, NeverZen.Theme.BackgroundSecondary),
+		ColorSequenceKeypoint.new(1, NeverZen.Theme.WindowBackgroundColor)
+	})
+	HeaderGradient.Rotation = 90
+	HeaderGradient.Parent = Header
+
+	-- Icon with modern styling
+	Icon.Name = "Icon"
+	Icon.Parent = Header
+	Icon.BackgroundTransparency = 1
+	Icon.Position = UDim2.new(0, 12, 0.5, 0)
+	Icon.AnchorPoint = Vector2.new(0, 0.5)
+	Icon.Size = UDim2.new(0, 24, 0, 24)
+	Icon.Image = NeverZen:GetIcon('home')
+	Icon.ImageColor3 = NeverZen.Theme.Accent
+
+	-- Title with modern font
+	Name.Name = "Name"
+	Name.Parent = Header
+	Name.BackgroundTransparency = 1
+	Name.Position = UDim2.new(0, 44, 0, 0)
+	Name.Size = UDim2.new(0.6, -44, 1, 0)
+	Name.Font = Enum.Font.GothamBold
+	Name.Text = name
+	Name.TextColor3 = NeverZen.Theme.TextColor
+	Name.TextSize = 16
+	Name.TextXAlignment = Enum.TextXAlignment.Left
+
+	-- Header Buttons Container
+	HeaderBtns.Name = "HeaderBtns"
+	HeaderBtns.Parent = Header
+	HeaderBtns.AnchorPoint = Vector2.new(1, 0.5)
+	HeaderBtns.BackgroundTransparency = 1
+	HeaderBtns.Position = UDim2.new(1, -12, 0.5, 0)
+	HeaderBtns.Size = UDim2.new(0, 70, 0, 30)
+
+	UIListLayout.Parent = HeaderBtns
+	UIListLayout.FillDirection = Enum.FillDirection.Horizontal
+	UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+	UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	UIListLayout.Padding = UDim.new(0, 8)
+
+	-- Minimize Button with modern hover effect
+	MinimizeFrame.Name = "MinimizeFrame"
+	MinimizeFrame.Parent = HeaderBtns
+	MinimizeFrame.BackgroundColor3 = NeverZen.Theme.ElementBackground
+	MinimizeFrame.BackgroundTransparency = 0.3
+	MinimizeFrame.Size = UDim2.new(0, 30, 0, 30)
+
+	UICorner_3.CornerRadius = UDim.new(0, 8)
+	UICorner_3.Parent = MinimizeFrame
+
+	Minimize.Name = "Minimize"
+	Minimize.Parent = MinimizeFrame
+	Minimize.BackgroundTransparency = 1
+	Minimize.Size = UDim2.new(1, 0, 1, 0)
+	Minimize.Image = NeverZen:GetIcon('minimize-2')
+	Minimize.ImageColor3 = NeverZen.Theme.TextColor
+
+	-- Hover effect for minimize button
+	Minimize.MouseEnter:Connect(function()
+		TweenService:Create(MinimizeFrame, TweenInfo.new(0.2), {
+			BackgroundColor3 = NeverZen.Theme.ElementBackgroundHover,
+			BackgroundTransparency = 0
+		}):Play()
 	end)
-	SettingsBtn.MouseLeave:Connect(function()
-		Tween(SettingsBtn, {ImageTransparency = 0.4}, 0.2)
+
+	Minimize.MouseLeave:Connect(function()
+		TweenService:Create(MinimizeFrame, TweenInfo.new(0.2), {
+			BackgroundTransparency = 0.3
+		}):Play()
 	end)
-	
-	-- Minimize Button
-	local MinimizeBtn = Instance.new("ImageButton")
-	MinimizeBtn.Name = RandomString()
-	MinimizeBtn.Size = UDim2.new(0, 22, 0, 22)
-	MinimizeBtn.BackgroundTransparency = 1
-	MinimizeBtn.Image = Icons["chevron-down"]
-	MinimizeBtn.ImageTransparency = 0.4
-	MinimizeBtn.Parent = HeaderControls
-	
-	MinimizeBtn.MouseEnter:Connect(function()
-		Tween(MinimizeBtn, {ImageTransparency = 0}, 0.2)
+
+	-- Toggle Button
+	ToggleFrame.Name = "ToggleFrame"
+	ToggleFrame.Parent = HeaderBtns
+	ToggleFrame.BackgroundColor3 = NeverZen.Theme.ElementBackground
+	ToggleFrame.BackgroundTransparency = 0.3
+	ToggleFrame.Size = UDim2.new(0, 30, 0, 30)
+
+	UICorner_4.CornerRadius = UDim.new(0, 8)
+	UICorner_4.Parent = ToggleFrame
+
+	Toggle.Name = "Toggle"
+	Toggle.Parent = ToggleFrame
+	Toggle.BackgroundTransparency = 1
+	Toggle.Size = UDim2.new(1, 0, 1, 0)
+	Toggle.Image = NeverZen:GetIcon('x')
+	Toggle.ImageColor3 = NeverZen.Theme.TextColor
+
+	-- Hover effect for toggle button
+	Toggle.MouseEnter:Connect(function()
+		TweenService:Create(ToggleFrame, TweenInfo.new(0.2), {
+			BackgroundColor3 = Color3.fromRGB(220, 50, 50),
+			BackgroundTransparency = 0
+		}):Play()
 	end)
-	MinimizeBtn.MouseLeave:Connect(function()
-		Tween(MinimizeBtn, {ImageTransparency = 0.4}, 0.2)
+
+	Toggle.MouseLeave:Connect(function()
+		TweenService:Create(ToggleFrame, TweenInfo.new(0.2), {
+			BackgroundTransparency = 0.3,
+			BackgroundColor3 = NeverZen.Theme.ElementBackground
+		}):Play()
 	end)
-	
-	MinimizeBtn.MouseButton1Click:Connect(function()
-		Window.Visible = not Window.Visible
-		if Window.Visible then
-			Tween(MainFrame, {Size = config.Size}, 0.5, Enum.EasingStyle.Quint)
-			MinimizeBtn.Image = Icons["chevron-down"]
+
+	-- Navigation Panel with modern design
+	Navigation.Name = "Navigation"
+	Navigation.Parent = WindowFrame
+	Navigation.BackgroundColor3 = NeverZen.Theme.BackgroundSecondary
+	Navigation.BackgroundTransparency = 0.5
+	Navigation.BorderSizePixel = 0
+	Navigation.Position = UDim2.new(0, 12, 0, 62)
+	Navigation.Size = UDim2.new(0, 140, 1, -74)
+
+	UICorner_5.CornerRadius = UDim.new(0, 10)
+	UICorner_5.Parent = Navigation
+
+	-- Tab Buttons Container
+	TabButtons.Name = "TabButtons"
+	TabButtons.Parent = Navigation
+	TabButtons.BackgroundTransparency = 1
+	TabButtons.Size = UDim2.new(1, 0, 1, 0)
+
+	UIListLayout_2.Parent = TabButtons
+	UIListLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
+	UIListLayout_2.Padding = UDim.new(0, 6)
+
+	UIPadding.Parent = TabButtons
+	UIPadding.PaddingBottom = UDim.new(0, 8)
+	UIPadding.PaddingLeft = UDim.new(0, 8)
+	UIPadding.PaddingRight = UDim.new(0, 8)
+	UIPadding.PaddingTop = UDim.new(0, 8)
+
+	-- Tabs Container
+	Tabs.Name = "Tabs"
+	Tabs.Parent = WindowFrame
+	Tabs.BackgroundColor3 = NeverZen.Theme.BackgroundSecondary
+	Tabs.BackgroundTransparency = 0.5
+	Tabs.BorderSizePixel = 0
+	Tabs.Position = UDim2.new(0, 164, 0, 62)
+	Tabs.Size = UDim2.new(1, -176, 1, -74)
+
+	UICorner_6.CornerRadius = UDim.new(0, 10)
+	UICorner_6.Parent = Tabs
+
+	-- Window Toggle Functionality
+	Toggle.MouseButton1Click:Connect(function()
+		WindowSignal.Toggle = not WindowSignal.Toggle
+		
+		if WindowSignal.Toggle then
+			TweenService:Create(WindowFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {
+				Size = WindowSignal.Config.Scale
+			}):Play()
+			Toggle.Image = NeverZen:GetIcon('x')
 		else
-			Tween(MainFrame, {Size = UDim2.new(0, config.Size.X.Offset, 0, 45)}, 0.5, Enum.EasingStyle.Quint)
-			MinimizeBtn.Image = Icons["chevron-up"]
+			TweenService:Create(WindowFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {
+				Size = UDim2.new(0, 590, 0, 50)
+			}):Play()
+			Toggle.Image = NeverZen:GetIcon('menu')
 		end
 	end)
-	
-	-- Vertical Line
-	local VerticalLine = Instance.new("Frame")
-	VerticalLine.Name = RandomString()
-	VerticalLine.Size = UDim2.new(0, 1, 1, 0)
-	VerticalLine.Position = UDim2.new(0, 170, 0, 0)
-	VerticalLine.BackgroundColor3 = Window.Theme.LineColor
-	VerticalLine.BorderSizePixel = 0
-	VerticalLine.Parent = MainFrame
-	
-	-- Sidebar
-	local Sidebar = Instance.new("Frame")
-	Sidebar.Name = RandomString()
-	Sidebar.Size = UDim2.new(0, 170, 1, -45)
-	Sidebar.Position = UDim2.new(0, 0, 0, 45)
-	Sidebar.BackgroundTransparency = 1
-	Sidebar.BorderSizePixel = 0
-	Sidebar.Parent = MainFrame
-	
-	-- Tab Container
-	local TabContainer = Instance.new("ScrollingFrame")
-	TabContainer.Name = RandomString()
-	TabContainer.Size = UDim2.new(1, -5, 1, -55)
-	TabContainer.Position = UDim2.new(0, 0, 0, 0)
-	TabContainer.BackgroundTransparency = 1
-	TabContainer.BorderSizePixel = 0
-	TabContainer.ScrollBarThickness = 4
-	TabContainer.ScrollBarImageColor3 = Window.Theme.Accent
-	TabContainer.CanvasSize = UDim2.new(0, 0, 0, 0)
-	TabContainer.Parent = Sidebar
-	
-	local TabList = Instance.new("UIListLayout")
-	TabList.Padding = UDim.new(0, 3)
-	TabList.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	TabList.Parent = TabContainer
-	
-	TabList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-		TabContainer.CanvasSize = UDim2.new(0, 0, 0, TabList.AbsoluteContentSize.Y + 10)
+
+	-- Minimize Functionality
+	Minimize.MouseButton1Click:Connect(function()
+		WindowFrame.Visible = not WindowFrame.Visible
 	end)
-	
-	-- User Info Footer
-	local UserFooter = Instance.new("Frame")
-	UserFooter.Name = RandomString()
-	UserFooter.Size = UDim2.new(1, 0, 0, 45)
-	UserFooter.Position = UDim2.new(0, 0, 1, 0)
-	UserFooter.AnchorPoint = Vector2.new(0, 1)
-	UserFooter.BackgroundTransparency = 1
-	UserFooter.BorderSizePixel = 0
-	UserFooter.Parent = Sidebar
-	
-	local FooterLine = Instance.new("Frame")
-	FooterLine.Name = RandomString()
-	FooterLine.Size = UDim2.new(1, 0, 0, 1)
-	FooterLine.BackgroundColor3 = Window.Theme.LineColor
-	FooterLine.BorderSizePixel = 0
-	FooterLine.Parent = UserFooter
-	
-	local UserIcon = Instance.new("ImageLabel")
-	UserIcon.Name = RandomString()
-	UserIcon.Size = UDim2.new(0, 35, 0, 35)
-	UserIcon.Position = UDim2.new(0, 5, 0.5, 0)
-	UserIcon.AnchorPoint = Vector2.new(0, 0.5)
-	UserIcon.BackgroundTransparency = 1
-	UserIcon.Parent = UserFooter
-	CreateCorner(UserIcon, 18)
-	CreateStroke(UserIcon, Window.Theme.LineColor, 2)
-	
-	pcall(function()
-		UserIcon.Image = Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size150x150)
-	end)
-	
-	local Username = Instance.new("TextLabel")
-	Username.Name = RandomString()
-	Username.Size = UDim2.new(1, -50, 0, 20)
-	Username.Position = UDim2.new(0, 47, 0.5, 0)
-	Username.AnchorPoint = Vector2.new(0, 0.5)
-	Username.BackgroundTransparency = 1
-	Username.Text = string.sub(LocalPlayer.DisplayName, 1, math.floor(#LocalPlayer.DisplayName / 2)) .. string.rep("*", math.ceil(#LocalPlayer.DisplayName / 2))
-	Username.TextColor3 = Color3.fromRGB(206, 206, 206)
-	Username.Font = Enum.Font.GothamBold
-	Username.TextSize = 13
-	Username.TextXAlignment = Enum.TextXAlignment.Left
-	Username.Parent = UserFooter
-	
-	-- Content Area
-	local ContentArea = Instance.new("Frame")
-	ContentArea.Name = RandomString()
-	ContentArea.Size = UDim2.new(1, -170, 1, -45)
-	ContentArea.Position = UDim2.new(0, 170, 0, 45)
-	ContentArea.BackgroundColor3 = Window.Theme.Background
-	ContentArea.BorderSizePixel = 0
-	ContentArea.ClipsDescendants = true
-	ContentArea.Parent = MainFrame
-	
-	-- Dragging
-	local dragging = false
-	local dragInput, dragStart, startPos
-	
-	Header.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			dragging = true
-			dragStart = input.Position
-			startPos = MainFrame.Position
-			
-			input.Changed:Connect(function()
-				if input.UserInputState == Enum.UserInputState.End then
-					dragging = false
-				end
-			end)
-		end
-	end)
-	
-	Header.InputChanged:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseMovement then
-			dragInput = input
-		end
-	end)
-	
-	UserInputService.InputChanged:Connect(function(input)
-		if input == dragInput and dragging then
-			local delta = input.Position - dragStart
-			Tween(MainFrame, {
-				Position = UDim2.new(
-					startPos.X.Scale,
-					startPos.X.Offset + delta.X,
-					startPos.Y.Scale,
-					startPos.Y.Offset + delta.Y
-				)
-			}, 0.1, Enum.EasingStyle.Linear)
-		end
-	end)
-	
-	-- Tab Functions
-	function Window:AddTab(tabConfig)
-		tabConfig = tabConfig or {}
-		tabConfig.Name = tabConfig.Name or "Tab"
-		tabConfig.Icon = tabConfig.Icon or "home"
+
+	-- Tab Creation Function
+	function WindowSignal:CreateTab(tabname, icon)
+		tabname = tostring(tabname or 'Tab')
+		icon = icon or 'home'
 		
-		local Tab = {}
-		Tab.Elements = {}
-		Tab.Visible = false
+		local TabSignal = {
+			Active = false
+		}
 		
-		-- Tab Button
-		local TabButton = Instance.new("Frame")
-		TabButton.Name = RandomString()
-		TabButton.Size = UDim2.new(0, 160, 0, 35)
-		TabButton.BackgroundColor3 = Window.Theme.Background2
-		TabButton.BorderSizePixel = 0
-		TabButton.Parent = TabContainer
-		CreateCorner(TabButton, 4)
-		
+		local TabButton = Instance.new("TextButton")
+		local UICorner = Instance.new("UICorner")
 		local TabIcon = Instance.new("ImageLabel")
-		TabIcon.Name = RandomString()
-		TabIcon.Size = UDim2.new(0, 20, 0, 20)
-		TabIcon.Position = UDim2.new(0, 7, 0.5, 0)
-		TabIcon.AnchorPoint = Vector2.new(0, 0.5)
-		TabIcon.BackgroundTransparency = 1
-		TabIcon.Image = Icons[tabConfig.Icon] or Icons["home"]
-		TabIcon.ImageColor3 = Window.Theme.IconColor
-		TabIcon.ImageTransparency = 0.4
-		TabIcon.Parent = TabButton
+		local TabName = Instance.new("TextLabel")
+		local Indicator = Instance.new("Frame")
+		local IndicatorCorner = Instance.new("UICorner")
 		
-		local TabLabel = Instance.new("TextLabel")
-		TabLabel.Name = RandomString()
-		TabLabel.Size = UDim2.new(1, -45, 0, 15)
-		TabLabel.Position = UDim2.new(0, 37, 0.5, 0)
-		TabLabel.AnchorPoint = Vector2.new(0, 0.5)
-		TabLabel.BackgroundTransparency = 1
-		TabLabel.Text = tabConfig.Name
-		TabLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-		TabLabel.Font = Enum.Font.GothamMedium
-		TabLabel.TextSize = 13
-		TabLabel.TextTransparency = 0.3
-		TabLabel.TextXAlignment = Enum.TextXAlignment.Left
-		TabLabel.Parent = TabButton
-		
-		local TabButton_Btn = Instance.new("TextButton")
-		TabButton_Btn.Name = RandomString()
-		TabButton_Btn.Size = UDim2.new(1, 0, 1, 0)
-		TabButton_Btn.BackgroundTransparency = 1
-		TabButton_Btn.Text = ""
-		TabButton_Btn.Parent = TabButton
-		
-		-- Tab Content
 		local TabContent = Instance.new("ScrollingFrame")
-		TabContent.Name = RandomString()
-		TabContent.Size = UDim2.new(1, 0, 1, 0)
+		local UIListLayout = Instance.new("UIListLayout")
+		local UIPadding = Instance.new("UIPadding")
+
+		-- Tab Button with modern design
+		TabButton.Name = tabname
+		TabButton.Parent = TabButtons
+		TabButton.BackgroundColor3 = NeverZen.Theme.ElementBackground
+		TabButton.BackgroundTransparency = 1
+		TabButton.BorderSizePixel = 0
+		TabButton.Size = UDim2.new(1, 0, 0, 40)
+		TabButton.AutoButtonColor = false
+		TabButton.Font = Enum.Font.GothamMedium
+		TabButton.Text = ""
+		TabButton.TextColor3 = NeverZen.Theme.TextColor
+		TabButton.TextSize = 14
+
+		UICorner.CornerRadius = UDim.new(0, 8)
+		UICorner.Parent = TabButton
+
+		-- Tab Icon
+		TabIcon.Name = "Icon"
+		TabIcon.Parent = TabButton
+		TabIcon.BackgroundTransparency = 1
+		TabIcon.Position = UDim2.new(0, 10, 0.5, 0)
+		TabIcon.AnchorPoint = Vector2.new(0, 0.5)
+		TabIcon.Size = UDim2.new(0, 20, 0, 20)
+		TabIcon.Image = NeverZen:GetIcon(icon)
+		TabIcon.ImageColor3 = NeverZen.Theme.TextColorDark
+
+		-- Tab Name
+		TabName.Name = "TabName"
+		TabName.Parent = TabButton
+		TabName.BackgroundTransparency = 1
+		TabName.Position = UDim2.new(0, 38, 0, 0)
+		TabName.Size = UDim2.new(1, -45, 1, 0)
+		TabName.Font = Enum.Font.GothamMedium
+		TabName.Text = tabname
+		TabName.TextColor3 = NeverZen.Theme.TextColorDark
+		TabName.TextSize = 13
+		TabName.TextXAlignment = Enum.TextXAlignment.Left
+
+		-- Active Indicator
+		Indicator.Name = "Indicator"
+		Indicator.Parent = TabButton
+		Indicator.AnchorPoint = Vector2.new(0, 0.5)
+		Indicator.BackgroundColor3 = NeverZen.Theme.Accent
+		Indicator.BorderSizePixel = 0
+		Indicator.Position = UDim2.new(0, 0, 0.5, 0)
+		Indicator.Size = UDim2.new(0, 0, 0, 24)
+
+		IndicatorCorner.CornerRadius = UDim.new(1, 0)
+		IndicatorCorner.Parent = Indicator
+
+		-- Tab Content
+		TabContent.Name = tabname .. "Content"
+		TabContent.Parent = Tabs
+		TabContent.Active = true
 		TabContent.BackgroundTransparency = 1
 		TabContent.BorderSizePixel = 0
+		TabContent.Size = UDim2.new(1, 0, 1, 0)
 		TabContent.ScrollBarThickness = 4
-		TabContent.ScrollBarImageColor3 = Window.Theme.Accent
-		TabContent.CanvasSize = UDim2.new(0, 0, 0, 0)
+		TabContent.ScrollBarImageColor3 = NeverZen.Theme.Accent
 		TabContent.Visible = false
-		TabContent.Parent = ContentArea
-		
-		local ContentPadding = Instance.new("UIPadding")
-		ContentPadding.PaddingTop = UDim.new(0, 15)
-		ContentPadding.PaddingBottom = UDim.new(0, 15)
-		ContentPadding.PaddingLeft = UDim.new(0, 15)
-		ContentPadding.PaddingRight = UDim.new(0, 15)
-		ContentPadding.Parent = TabContent
-		
-		local ContentList = Instance.new("UIListLayout")
-		ContentList.Padding = UDim.new(0, 10)
-		ContentList.Parent = TabContent
-		
-		ContentList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-			TabContent.CanvasSize = UDim2.new(0, 0, 0, ContentList.AbsoluteContentSize.Y + 30)
+		TabContent.CanvasSize = UDim2.new(0, 0, 0, 0)
+
+		UIListLayout.Parent = TabContent
+		UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+		UIListLayout.Padding = UDim.new(0, 8)
+
+		UIPadding.Parent = TabContent
+		UIPadding.PaddingBottom = UDim.new(0, 8)
+		UIPadding.PaddingLeft = UDim.new(0, 12)
+		UIPadding.PaddingRight = UDim.new(0, 12)
+		UIPadding.PaddingTop = UDim.new(0, 8)
+
+		-- Auto-resize canvas
+		UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+			TabContent.CanvasSize = UDim2.new(0, 0, 0, UIListLayout.AbsoluteContentSize.Y + 16)
 		end)
-		
-		-- Tab Button Click
-		TabButton_Btn.MouseButton1Click:Connect(function()
-			-- Deselect all tabs
-			for _, tab in pairs(Window.Tabs) do
-				tab.Visible = false
-				tab.TabContent.Visible = false
-				Tween(tab.TabButton, {BackgroundColor3 = Window.Theme.Background2}, 0.2)
-				Tween(tab.TabIcon, {ImageTransparency = 0.4}, 0.2)
-				Tween(tab.TabLabel, {TextTransparency = 0.3}, 0.2)
-			end
-			
-			-- Select this tab
-			Tab.Visible = true
-			TabContent.Visible = true
-			Window.CurrentTab = Tab
-			Tween(TabButton, {BackgroundColor3 = Window.Theme.Accent}, 0.2)
-			Tween(TabIcon, {ImageTransparency = 0}, 0.2)
-			Tween(TabLabel, {TextTransparency = 0}, 0.2)
-		end)
-		
-		TabButton_Btn.MouseEnter:Connect(function()
-			if not Tab.Visible then
-				Tween(TabButton, {BackgroundColor3 = Window.Theme.Section}, 0.2)
+
+		-- Tab Hover Effects
+		TabButton.MouseEnter:Connect(function()
+			if not TabSignal.Active then
+				TweenService:Create(TabButton, TweenInfo.new(0.2), {
+					BackgroundTransparency = 0.7
+				}):Play()
+				TweenService:Create(TabIcon, TweenInfo.new(0.2), {
+					ImageColor3 = NeverZen.Theme.TextColor
+				}):Play()
+				TweenService:Create(TabName, TweenInfo.new(0.2), {
+					TextColor3 = NeverZen.Theme.TextColor
+				}):Play()
 			end
 		end)
-		
-		TabButton_Btn.MouseLeave:Connect(function()
-			if not Tab.Visible then
-				Tween(TabButton, {BackgroundColor3 = Window.Theme.Background2}, 0.2)
+
+		TabButton.MouseLeave:Connect(function()
+			if not TabSignal.Active then
+				TweenService:Create(TabButton, TweenInfo.new(0.2), {
+					BackgroundTransparency = 1
+				}):Play()
+				TweenService:Create(TabIcon, TweenInfo.new(0.2), {
+					ImageColor3 = NeverZen.Theme.TextColorDark
+				}):Play()
+				TweenService:Create(TabName, TweenInfo.new(0.2), {
+					TextColor3 = NeverZen.Theme.TextColorDark
+				}):Play()
 			end
 		end)
-		
-		-- Store references
-		Tab.TabButton = TabButton
-		Tab.TabIcon = TabIcon
-		Tab.TabLabel = TabLabel
-		Tab.TabContent = TabContent
-		
-		-- Auto-select first tab
-		if #Window.Tabs == 0 then
-			task.delay(0.5, function()
-				TabButton_Btn.MouseButton1Click:Fire()
-			end)
-		end
-		
-		table.insert(Window.Tabs, Tab)
-		
-		-- Element Creation Functions
-		function Tab:AddSection(name)
-			local Section = Instance.new("Frame")
-			Section.Name = RandomString()
-			Section.Size = UDim2.new(1, 0, 0, 0)
-			Section.BackgroundColor3 = Window.Theme.Section
-			Section.BorderSizePixel = 0
-			Section.AutomaticSize = Enum.AutomaticSize.Y
-			Section.Parent = TabContent
-			CreateCorner(Section, 4)
-			CreateStroke(Section, Window.Theme.Stroke, 1)
+
+		-- Tab Click Functionality
+		TabButton.MouseButton1Click:Connect(function()
+			NeverZen:CreateRipple(TabButton, Vector2.new(TabButton.AbsoluteSize.X / 2, TabButton.AbsoluteSize.Y / 2))
 			
-			local SectionPadding = Instance.new("UIPadding")
-			SectionPadding.PaddingTop = UDim.new(0, 15)
-			SectionPadding.PaddingBottom = UDim.new(0, 15)
-			SectionPadding.PaddingLeft = UDim.new(0, 15)
-			SectionPadding.PaddingRight = UDim.new(0, 15)
-			SectionPadding.Parent = Section
-			
-			local SectionList = Instance.new("UIListLayout")
-			SectionList.Padding = UDim.new(0, 8)
-			SectionList.Parent = Section
-			
-			if name then
-				local SectionTitle = Instance.new("TextLabel")
-				SectionTitle.Name = RandomString()
-				SectionTitle.Size = UDim2.new(1, 0, 0, 20)
-				SectionTitle.BackgroundTransparency = 1
-				SectionTitle.Text = name
-				SectionTitle.TextColor3 = Window.Theme.HeaderText
-				SectionTitle.Font = Enum.Font.GothamBold
-				SectionTitle.TextSize = 14
-				SectionTitle.TextXAlignment = Enum.TextXAlignment.Left
-				SectionTitle.Parent = Section
-			end
-			
-			return Section
-		end
-		
-		function Tab:AddToggle(config, parent)
-			config = config or {}
-			config.Name = config.Name or "Toggle"
-			config.Default = config.Default or false
-			config.Callback = config.Callback or function() end
-			
-			parent = parent or TabContent
-			
-			local Toggle = {}
-			Toggle.Value = config.Default
-			
-			local ToggleFrame = Instance.new("Frame")
-			ToggleFrame.Name = RandomString()
-			ToggleFrame.Size = UDim2.new(1, 0, 0, 35)
-			ToggleFrame.BackgroundColor3 = Window.Theme.Background2
-			ToggleFrame.BorderSizePixel = 0
-			ToggleFrame.Parent = parent
-			CreateCorner(ToggleFrame, 4)
-			
-			local ToggleLabel = Instance.new("TextLabel")
-			ToggleLabel.Name = RandomString()
-			ToggleLabel.Size = UDim2.new(1, -55, 0, 20)
-			ToggleLabel.Position = UDim2.new(0, 10, 0.5, 0)
-			ToggleLabel.AnchorPoint = Vector2.new(0, 0.5)
-			ToggleLabel.BackgroundTransparency = 1
-			ToggleLabel.Text = config.Name
-			ToggleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-			ToggleLabel.Font = Enum.Font.GothamMedium
-			ToggleLabel.TextSize = 13
-			ToggleLabel.TextTransparency = 0.2
-			ToggleLabel.TextXAlignment = Enum.TextXAlignment.Left
-			ToggleLabel.Parent = ToggleFrame
-			
-			local ToggleOuter = Instance.new("Frame")
-			ToggleOuter.Name = RandomString()
-			ToggleOuter.Size = UDim2.new(0, 40, 0, 20)
-			ToggleOuter.Position = UDim2.new(1, -45, 0.5, 0)
-			ToggleOuter.AnchorPoint = Vector2.new(0, 0.5)
-			ToggleOuter.BackgroundColor3 = Window.Theme.Stroke
-			ToggleOuter.BorderSizePixel = 0
-			ToggleOuter.Parent = ToggleFrame
-			CreateCorner(ToggleOuter, 10)
-			
-			local ToggleInner = Instance.new("Frame")
-			ToggleInner.Name = RandomString()
-			ToggleInner.Size = UDim2.new(0, 16, 0, 16)
-			ToggleInner.Position = UDim2.new(0, 2, 0.5, 0)
-			ToggleInner.AnchorPoint = Vector2.new(0, 0.5)
-			ToggleInner.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-			ToggleInner.BorderSizePixel = 0
-			ToggleInner.Parent = ToggleOuter
-			CreateCorner(ToggleInner, 8)
-			
-			local ToggleBtn = Instance.new("TextButton")
-			ToggleBtn.Name = RandomString()
-			ToggleBtn.Size = UDim2.new(1, 0, 1, 0)
-			ToggleBtn.BackgroundTransparency = 1
-			ToggleBtn.Text = ""
-			ToggleBtn.Parent = ToggleFrame
-			
-			local function UpdateToggle()
-				if Toggle.Value then
-					Tween(ToggleOuter, {BackgroundColor3 = Window.Theme.Accent}, 0.2)
-					Tween(ToggleInner, {Position = UDim2.new(1, -18, 0.5, 0)}, 0.2)
-				else
-					Tween(ToggleOuter, {BackgroundColor3 = Window.Theme.Stroke}, 0.2)
-					Tween(ToggleInner, {Position = UDim2.new(0, 2, 0.5, 0)}, 0.2)
+			-- Deactivate all tabs
+			for _, tab in pairs(TabButtons:GetChildren()) do
+				if tab:IsA("TextButton") then
+					TweenService:Create(tab, TweenInfo.new(0.2), {
+						BackgroundTransparency = 1
+					}):Play()
+					
+					local tabIcon = tab:FindFirstChild("Icon")
+					local tabName = tab:FindFirstChild("TabName")
+					local indicator = tab:FindFirstChild("Indicator")
+					
+					if tabIcon then
+						TweenService:Create(tabIcon, TweenInfo.new(0.2), {
+							ImageColor3 = NeverZen.Theme.TextColorDark
+						}):Play()
+					end
+					
+					if tabName then
+						TweenService:Create(tabName, TweenInfo.new(0.2), {
+							TextColor3 = NeverZen.Theme.TextColorDark
+						}):Play()
+					end
+					
+					if indicator then
+						TweenService:Create(indicator, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {
+							Size = UDim2.new(0, 0, 0, 24)
+						}):Play()
+					end
 				end
-				pcall(config.Callback, Toggle.Value)
 			end
 			
-			ToggleBtn.MouseButton1Click:Connect(function()
-				Toggle.Value = not Toggle.Value
-				UpdateToggle()
+			-- Hide all tab contents
+			for _, content in pairs(Tabs:GetChildren()) do
+				if content:IsA("ScrollingFrame") then
+					content.Visible = false
+				end
+			end
+			
+			-- Activate this tab
+			TabSignal.Active = true
+			TabContent.Visible = true
+			
+			TweenService:Create(TabButton, TweenInfo.new(0.2), {
+				BackgroundColor3 = NeverZen.Theme.ElementBackground,
+				BackgroundTransparency = 0.5
+			}):Play()
+			
+			TweenService:Create(TabIcon, TweenInfo.new(0.2), {
+				ImageColor3 = NeverZen.Theme.Accent
+			}):Play()
+			
+			TweenService:Create(TabName, TweenInfo.new(0.2), {
+				TextColor3 = NeverZen.Theme.TextColor
+			}):Play()
+			
+			TweenService:Create(Indicator, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {
+				Size = UDim2.new(0, 3, 0, 24)
+			}):Play()
+		end)
+
+		-- Auto-select first tab
+		if #TabButtons:GetChildren() == 2 then -- UIListLayout + first tab
+			TabButton.MouseButton1Click:Fire()
+		end
+
+		-- Element Creation Functions
+		function TabSignal:CreateButton(buttonname, callback)
+			buttonname = tostring(buttonname or 'Button')
+			callback = callback or function() end
+
+			local Button = Instance.new("Frame")
+			local UICorner = Instance.new("UICorner")
+			local ButtonFrame = Instance.new("TextButton")
+			local ButtonText = Instance.new("TextLabel")
+			local ButtonIcon = Instance.new("ImageLabel")
+
+			Button.Name = buttonname
+			Button.Parent = TabContent
+			Button.BackgroundColor3 = NeverZen.Theme.ElementBackground
+			Button.BorderSizePixel = 0
+			Button.Size = UDim2.new(1, 0, 0, 45)
+
+			UICorner.CornerRadius = UDim.new(0, 8)
+			UICorner.Parent = Button
+
+			ButtonFrame.Name = "ButtonFrame"
+			ButtonFrame.Parent = Button
+			ButtonFrame.BackgroundTransparency = 1
+			ButtonFrame.Size = UDim2.new(1, 0, 1, 0)
+			ButtonFrame.Font = Enum.Font.GothamMedium
+			ButtonFrame.Text = ""
+			ButtonFrame.TextColor3 = NeverZen.Theme.TextColor
+			ButtonFrame.TextSize = 14
+
+			ButtonText.Name = "ButtonText"
+			ButtonText.Parent = ButtonFrame
+			ButtonText.BackgroundTransparency = 1
+			ButtonText.Position = UDim2.new(0, 15, 0, 0)
+			ButtonText.Size = UDim2.new(1, -50, 1, 0)
+			ButtonText.Font = Enum.Font.GothamMedium
+			ButtonText.Text = buttonname
+			ButtonText.TextColor3 = NeverZen.Theme.TextColor
+			ButtonText.TextSize = 13
+			ButtonText.TextXAlignment = Enum.TextXAlignment.Left
+
+			ButtonIcon.Name = "ButtonIcon"
+			ButtonIcon.Parent = ButtonFrame
+			ButtonIcon.AnchorPoint = Vector2.new(1, 0.5)
+			ButtonIcon.BackgroundTransparency = 1
+			ButtonIcon.Position = UDim2.new(1, -12, 0.5, 0)
+			ButtonIcon.Size = UDim2.new(0, 18, 0, 18)
+			ButtonIcon.Image = NeverZen:GetIcon('chevron-right')
+			ButtonIcon.ImageColor3 = NeverZen.Theme.TextColorDark
+
+			-- Hover effects
+			ButtonFrame.MouseEnter:Connect(function()
+				TweenService:Create(Button, TweenInfo.new(0.2), {
+					BackgroundColor3 = NeverZen.Theme.ElementBackgroundHover
+				}):Play()
+				TweenService:Create(ButtonIcon, TweenInfo.new(0.2), {
+					ImageColor3 = NeverZen.Theme.Accent
+				}):Play()
 			end)
-			
-			UpdateToggle()
-			
-			function Toggle:Set(value)
-				Toggle.Value = value
-				UpdateToggle()
-			end
-			
+
+			ButtonFrame.MouseLeave:Connect(function()
+				TweenService:Create(Button, TweenInfo.new(0.2), {
+					BackgroundColor3 = NeverZen.Theme.ElementBackground
+				}):Play()
+				TweenService:Create(ButtonIcon, TweenInfo.new(0.2), {
+					ImageColor3 = NeverZen.Theme.TextColorDark
+				}):Play()
+			end)
+
+			ButtonFrame.MouseButton1Click:Connect(function()
+				NeverZen:CreateRipple(Button, Vector2.new(ButtonFrame.AbsoluteSize.X / 2, ButtonFrame.AbsoluteSize.Y / 2))
+				pcall(callback)
+			end)
+
+			return Button
+		end
+
+		function TabSignal:CreateToggle(togglename, default, callback)
+			togglename = tostring(togglename or 'Toggle')
+			default = default or false
+			callback = callback or function() end
+
+			local ToggleState = default
+
+			local Toggle = Instance.new("Frame")
+			local UICorner = Instance.new("UICorner")
+			local ToggleButton = Instance.new("TextButton")
+			local ToggleName = Instance.new("TextLabel")
+			local ToggleSwitch = Instance.new("Frame")
+			local SwitchCorner = Instance.new("UICorner")
+			local SwitchCircle = Instance.new("Frame")
+			local CircleCorner = Instance.new("UICorner")
+
+			Toggle.Name = togglename
+			Toggle.Parent = TabContent
+			Toggle.BackgroundColor3 = NeverZen.Theme.ElementBackground
+			Toggle.BorderSizePixel = 0
+			Toggle.Size = UDim2.new(1, 0, 0, 45)
+
+			UICorner.CornerRadius = UDim.new(0, 8)
+			UICorner.Parent = Toggle
+
+			ToggleButton.Name = "ToggleButton"
+			ToggleButton.Parent = Toggle
+			ToggleButton.BackgroundTransparency = 1
+			ToggleButton.Size = UDim2.new(1, 0, 1, 0)
+			ToggleButton.Font = Enum.Font.GothamMedium
+			ToggleButton.Text = ""
+
+			ToggleName.Name = "ToggleName"
+			ToggleName.Parent = ToggleButton
+			ToggleName.BackgroundTransparency = 1
+			ToggleName.Position = UDim2.new(0, 15, 0, 0)
+			ToggleName.Size = UDim2.new(1, -80, 1, 0)
+			ToggleName.Font = Enum.Font.GothamMedium
+			ToggleName.Text = togglename
+			ToggleName.TextColor3 = NeverZen.Theme.TextColor
+			ToggleName.TextSize = 13
+			ToggleName.TextXAlignment = Enum.TextXAlignment.Left
+
+			ToggleSwitch.Name = "ToggleSwitch"
+			ToggleSwitch.Parent = ToggleButton
+			ToggleSwitch.AnchorPoint = Vector2.new(1, 0.5)
+			ToggleSwitch.BackgroundColor3 = ToggleState and NeverZen.Theme.ToggleOn or NeverZen.Theme.ToggleOff
+			ToggleSwitch.BorderSizePixel = 0
+			ToggleSwitch.Position = UDim2.new(1, -12, 0.5, 0)
+			ToggleSwitch.Size = UDim2.new(0, 44, 0, 24)
+
+			SwitchCorner.CornerRadius = UDim.new(1, 0)
+			SwitchCorner.Parent = ToggleSwitch
+
+			SwitchCircle.Name = "Circle"
+			SwitchCircle.Parent = ToggleSwitch
+			SwitchCircle.AnchorPoint = Vector2.new(0, 0.5)
+			SwitchCircle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			SwitchCircle.BorderSizePixel = 0
+			SwitchCircle.Position = ToggleState and UDim2.new(1, -22, 0.5, 0) or UDim2.new(0, 2, 0.5, 0)
+			SwitchCircle.Size = UDim2.new(0, 20, 0, 20)
+
+			CircleCorner.CornerRadius = UDim.new(1, 0)
+			CircleCorner.Parent = SwitchCircle
+
+			-- Hover effects
+			ToggleButton.MouseEnter:Connect(function()
+				TweenService:Create(Toggle, TweenInfo.new(0.2), {
+					BackgroundColor3 = NeverZen.Theme.ElementBackgroundHover
+				}):Play()
+			end)
+
+			ToggleButton.MouseLeave:Connect(function()
+				TweenService:Create(Toggle, TweenInfo.new(0.2), {
+					BackgroundColor3 = NeverZen.Theme.ElementBackground
+				}):Play()
+			end)
+
+			ToggleButton.MouseButton1Click:Connect(function()
+				ToggleState = not ToggleState
+				
+				TweenService:Create(ToggleSwitch, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {
+					BackgroundColor3 = ToggleState and NeverZen.Theme.ToggleOn or NeverZen.Theme.ToggleOff
+				}):Play()
+				
+				TweenService:Create(SwitchCircle, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {
+					Position = ToggleState and UDim2.new(1, -22, 0.5, 0) or UDim2.new(0, 2, 0.5, 0)
+				}):Play()
+				
+				pcall(callback, ToggleState)
+			end)
+
 			return Toggle
 		end
-		
-		function Tab:AddSlider(config, parent)
-			config = config or {}
-			config.Name = config.Name or "Slider"
-			config.Min = config.Min or 0
-			config.Max = config.Max or 100
-			config.Default = config.Default or config.Min
-			config.Callback = config.Callback or function() end
-			
-			parent = parent or TabContent
-			
-			local Slider = {}
-			Slider.Value = config.Default
-			
-			local SliderFrame = Instance.new("Frame")
-			SliderFrame.Name = RandomString()
-			SliderFrame.Size = UDim2.new(1, 0, 0, 50)
-			SliderFrame.BackgroundColor3 = Window.Theme.Background2
-			SliderFrame.BorderSizePixel = 0
-			SliderFrame.Parent = parent
-			CreateCorner(SliderFrame, 4)
-			
-			local SliderLabel = Instance.new("TextLabel")
-			SliderLabel.Name = RandomString()
-			SliderLabel.Size = UDim2.new(1, -60, 0, 20)
-			SliderLabel.Position = UDim2.new(0, 10, 0, 5)
-			SliderLabel.BackgroundTransparency = 1
-			SliderLabel.Text = config.Name
-			SliderLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-			SliderLabel.Font = Enum.Font.GothamMedium
-			SliderLabel.TextSize = 13
-			SliderLabel.TextTransparency = 0.2
-			SliderLabel.TextXAlignment = Enum.TextXAlignment.Left
-			SliderLabel.Parent = SliderFrame
-			
-			local SliderValue = Instance.new("TextLabel")
-			SliderValue.Name = RandomString()
-			SliderValue.Size = UDim2.new(0, 50, 0, 20)
-			SliderValue.Position = UDim2.new(1, -55, 0, 5)
-			SliderValue.BackgroundTransparency = 1
-			SliderValue.Text = tostring(math.floor(config.Default))
-			SliderValue.TextColor3 = Window.Theme.Accent
-			SliderValue.Font = Enum.Font.GothamBold
-			SliderValue.TextSize = 13
-			SliderValue.TextXAlignment = Enum.TextXAlignment.Right
-			SliderValue.Parent = SliderFrame
-			
+
+		function TabSignal:CreateSlider(slidername, min, max, default, callback)
+			slidername = tostring(slidername or 'Slider')
+			min = min or 0
+			max = max or 100
+			default = default or 50
+			callback = callback or function() end
+
+			local SliderValue = default
+			local Dragging = false
+
+			local Slider = Instance.new("Frame")
+			local UICorner = Instance.new("UICorner")
+			local SliderName = Instance.new("TextLabel")
+			local SliderValueLabel = Instance.new("TextLabel")
 			local SliderBar = Instance.new("Frame")
-			SliderBar.Name = RandomString()
-			SliderBar.Size = UDim2.new(1, -20, 0, 6)
-			SliderBar.Position = UDim2.new(0, 10, 1, -16)
-			SliderBar.BackgroundColor3 = Window.Theme.Stroke
-			SliderBar.BorderSizePixel = 0
-			SliderBar.Parent = SliderFrame
-			CreateCorner(SliderBar, 3)
-			
+			local BarCorner = Instance.new("UICorner")
 			local SliderFill = Instance.new("Frame")
-			SliderFill.Name = RandomString()
-			SliderFill.Size = UDim2.new(0, 0, 1, 0)
-			SliderFill.BackgroundColor3 = Window.Theme.Accent
-			SliderFill.BorderSizePixel = 0
+			local FillCorner = Instance.new("UICorner")
+			local SliderButton = Instance.new("TextButton")
+
+			Slider.Name = slidername
+			Slider.Parent = TabContent
+			Slider.BackgroundColor3 = NeverZen.Theme.ElementBackground
+			Slider.BorderSizePixel = 0
+			Slider.Size = UDim2.new(1, 0, 0, 55)
+
+			UICorner.CornerRadius = UDim.new(0, 8)
+			UICorner.Parent = Slider
+
+			SliderName.Name = "SliderName"
+			SliderName.Parent = Slider
+			SliderName.BackgroundTransparency = 1
+			SliderName.Position = UDim2.new(0, 15, 0, 8)
+			SliderName.Size = UDim2.new(1, -80, 0, 18)
+			SliderName.Font = Enum.Font.GothamMedium
+			SliderName.Text = slidername
+			SliderName.TextColor3 = NeverZen.Theme.TextColor
+			SliderName.TextSize = 13
+			SliderName.TextXAlignment = Enum.TextXAlignment.Left
+
+			SliderValueLabel.Name = "SliderValue"
+			SliderValueLabel.Parent = Slider
+			SliderValueLabel.AnchorPoint = Vector2.new(1, 0)
+			SliderValueLabel.BackgroundTransparency = 1
+			SliderValueLabel.Position = UDim2.new(1, -15, 0, 8)
+			SliderValueLabel.Size = UDim2.new(0, 50, 0, 18)
+			SliderValueLabel.Font = Enum.Font.GothamBold
+			SliderValueLabel.Text = tostring(default)
+			SliderValueLabel.TextColor3 = NeverZen.Theme.Accent
+			SliderValueLabel.TextSize = 13
+			SliderValueLabel.TextXAlignment = Enum.TextXAlignment.Right
+
+			SliderBar.Name = "SliderBar"
+			SliderBar.Parent = Slider
+			SliderBar.BackgroundColor3 = NeverZen.Theme.SliderBackground
+			SliderBar.BorderSizePixel = 0
+			SliderBar.Position = UDim2.new(0, 15, 1, -16)
+			SliderBar.Size = UDim2.new(1, -30, 0, 6)
+
+			BarCorner.CornerRadius = UDim.new(1, 0)
+			BarCorner.Parent = SliderBar
+
+			SliderFill.Name = "Fill"
 			SliderFill.Parent = SliderBar
-			CreateCorner(SliderFill, 3)
-			
-			local SliderDot = Instance.new("Frame")
-			SliderDot.Name = RandomString()
-			SliderDot.Size = UDim2.new(0, 14, 0, 14)
-			SliderDot.Position = UDim2.new(0, -7, 0.5, 0)
-			SliderDot.AnchorPoint = Vector2.new(0, 0.5)
-			SliderDot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-			SliderDot.BorderSizePixel = 0
-			SliderDot.Parent = SliderFill
-			CreateCorner(SliderDot, 7)
-			
-			local dragging = false
-			
+			SliderFill.BackgroundColor3 = NeverZen.Theme.SliderFill
+			SliderFill.BorderSizePixel = 0
+			SliderFill.Size = UDim2.new((default - min) / (max - min), 0, 1, 0)
+
+			FillCorner.CornerRadius = UDim.new(1, 0)
+			FillCorner.Parent = SliderFill
+
+			SliderButton.Name = "SliderButton"
+			SliderButton.Parent = SliderBar
+			SliderButton.BackgroundTransparency = 1
+			SliderButton.Size = UDim2.new(1, 0, 1, 0)
+			SliderButton.Text = ""
+
 			local function UpdateSlider(input)
-				local percent = math.clamp((input.Position.X - SliderBar.AbsolutePosition.X) / SliderBar.AbsoluteSize.X, 0, 1)
-				Slider.Value = config.Min + (config.Max - config.Min) * percent
-				Slider.Value = math.floor(Slider.Value)
+				local SizeX = math.clamp((input.Position.X - SliderBar.AbsolutePosition.X) / SliderBar.AbsoluteSize.X, 0, 1)
+				SliderValue = math.floor(min + (max - min) * SizeX)
 				
-				SliderFill.Size = UDim2.new(percent, 0, 1, 0)
-				SliderValue.Text = tostring(Slider.Value)
-				pcall(config.Callback, Slider.Value)
+				TweenService:Create(SliderFill, TweenInfo.new(0.1), {
+					Size = UDim2.new(SizeX, 0, 1, 0)
+				}):Play()
+				
+				SliderValueLabel.Text = tostring(SliderValue)
+				pcall(callback, SliderValue)
 			end
-			
-			SliderBar.InputBegan:Connect(function(input)
+
+			SliderButton.MouseButton1Down:Connect(function()
+				Dragging = true
+			end)
+
+			Services.UserInputService.InputEnded:Connect(function(input)
 				if input.UserInputType == Enum.UserInputType.MouseButton1 then
-					dragging = true
+					Dragging = false
+				end
+			end)
+
+			Services.UserInputService.InputChanged:Connect(function(input)
+				if Dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
 					UpdateSlider(input)
 				end
 			end)
-			
-			UserInputService.InputChanged:Connect(function(input)
-				if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-					UpdateSlider(input)
-				end
+
+			SliderButton.MouseButton1Click:Connect(function(input)
+				UpdateSlider(Services.UserInputService:GetMouseLocation())
 			end)
-			
-			UserInputService.InputEnded:Connect(function(input)
-				if input.UserInputType == Enum.UserInputType.MouseButton1 then
-					dragging = false
-				end
-			end)
-			
-			-- Initialize
-			local initialPercent = (config.Default - config.Min) / (config.Max - config.Min)
-			SliderFill.Size = UDim2.new(initialPercent, 0, 1, 0)
-			
-			function Slider:Set(value)
-				Slider.Value = math.clamp(value, config.Min, config.Max)
-				local percent = (Slider.Value - config.Min) / (config.Max - config.Min)
-				SliderFill.Size = UDim2.new(percent, 0, 1, 0)
-				SliderValue.Text = tostring(math.floor(Slider.Value))
-				pcall(config.Callback, Slider.Value)
-			end
-			
+
 			return Slider
 		end
-		
-		function Tab:AddButton(config, parent)
-			config = config or {}
-			config.Name = config.Name or "Button"
-			config.Callback = config.Callback or function() end
-			
-			parent = parent or TabContent
-			
-			local ButtonFrame = Instance.new("Frame")
-			ButtonFrame.Name = RandomString()
-			ButtonFrame.Size = UDim2.new(1, 0, 0, 35)
-			ButtonFrame.BackgroundColor3 = Window.Theme.Accent
-			ButtonFrame.BorderSizePixel = 0
-			ButtonFrame.Parent = parent
-			CreateCorner(ButtonFrame, 4)
-			
-			local ButtonLabel = Instance.new("TextLabel")
-			ButtonLabel.Name = RandomString()
-			ButtonLabel.Size = UDim2.new(1, -20, 0, 20)
-			ButtonLabel.Position = UDim2.new(0.5, 0, 0.5, 0)
-			ButtonLabel.AnchorPoint = Vector2.new(0.5, 0.5)
-			ButtonLabel.BackgroundTransparency = 1
-			ButtonLabel.Text = config.Name
-			ButtonLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-			ButtonLabel.Font = Enum.Font.GothamBold
-			ButtonLabel.TextSize = 13
-			ButtonLabel.Parent = ButtonFrame
-			
-			local ButtonBtn = Instance.new("TextButton")
-			ButtonBtn.Name = RandomString()
-			ButtonBtn.Size = UDim2.new(1, 0, 1, 0)
-			ButtonBtn.BackgroundTransparency = 1
-			ButtonBtn.Text = ""
-			ButtonBtn.Parent = ButtonFrame
-			
-			ButtonBtn.MouseButton1Click:Connect(function()
-				Tween(ButtonFrame, {BackgroundColor3 = Color3.fromHSV(
-					select(1, Color3.toHSV(Window.Theme.Accent)),
-					select(2, Color3.toHSV(Window.Theme.Accent)),
-					select(3, Color3.toHSV(Window.Theme.Accent)) * 0.8
-				)}, 0.1)
-				task.wait(0.1)
-				Tween(ButtonFrame, {BackgroundColor3 = Window.Theme.Accent}, 0.1)
-				pcall(config.Callback)
-			end)
-			
-			ButtonBtn.MouseEnter:Connect(function()
-				Tween(ButtonFrame, {BackgroundColor3 = Color3.fromHSV(
-					select(1, Color3.toHSV(Window.Theme.Accent)),
-					select(2, Color3.toHSV(Window.Theme.Accent)),
-					select(3, Color3.toHSV(Window.Theme.Accent)) * 1.1
-				)}, 0.2)
-			end)
-			
-			ButtonBtn.MouseLeave:Connect(function()
-				Tween(ButtonFrame, {BackgroundColor3 = Window.Theme.Accent}, 0.2)
-			end)
-		end
-		
-		function Tab:AddDropdown(config, parent)
-			config = config or {}
-			config.Name = config.Name or "Dropdown"
-			config.Options = config.Options or {"Option 1", "Option 2"}
-			config.Default = config.Default or config.Options[1]
-			config.Callback = config.Callback or function() end
-			
-			parent = parent or TabContent
-			
-			local Dropdown = {}
-			Dropdown.Value = config.Default
-			Dropdown.Open = false
-			
-			local DropdownFrame = Instance.new("Frame")
-			DropdownFrame.Name = RandomString()
-			DropdownFrame.Size = UDim2.new(1, 0, 0, 35)
-			DropdownFrame.BackgroundColor3 = Window.Theme.Background2
-			DropdownFrame.BorderSizePixel = 0
-			DropdownFrame.Parent = parent
-			CreateCorner(DropdownFrame, 4)
-			
-			local DropdownLabel = Instance.new("TextLabel")
-			DropdownLabel.Name = RandomString()
-			DropdownLabel.Size = UDim2.new(1, -35, 0, 20)
-			DropdownLabel.Position = UDim2.new(0, 10, 0.5, 0)
-			DropdownLabel.AnchorPoint = Vector2.new(0, 0.5)
-			DropdownLabel.BackgroundTransparency = 1
-			DropdownLabel.Text = config.Name .. ": " .. Dropdown.Value
-			DropdownLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-			DropdownLabel.Font = Enum.Font.GothamMedium
-			DropdownLabel.TextSize = 13
-			DropdownLabel.TextTransparency = 0.2
-			DropdownLabel.TextXAlignment = Enum.TextXAlignment.Left
-			DropdownLabel.Parent = DropdownFrame
-			
-			local DropdownIcon = Instance.new("ImageLabel")
-			DropdownIcon.Name = RandomString()
-			DropdownIcon.Size = UDim2.new(0, 14, 0, 14)
-			DropdownIcon.Position = UDim2.new(1, -20, 0.5, 0)
-			DropdownIcon.AnchorPoint = Vector2.new(0.5, 0.5)
-			DropdownIcon.BackgroundTransparency = 1
-			DropdownIcon.Image = Icons["chevron-down"]
-			DropdownIcon.ImageTransparency = 0.5
-			DropdownIcon.Parent = DropdownFrame
-			
-			local DropdownBtn = Instance.new("TextButton")
-			DropdownBtn.Name = RandomString()
-			DropdownBtn.Size = UDim2.new(1, 0, 1, 0)
-			DropdownBtn.BackgroundTransparency = 1
-			DropdownBtn.Text = ""
-			DropdownBtn.ZIndex = 2
-			DropdownBtn.Parent = DropdownFrame
-			
-			local OptionsFrame = Instance.new("Frame")
-			OptionsFrame.Name = RandomString()
-			OptionsFrame.Size = UDim2.new(1, 0, 0, 0)
-			OptionsFrame.Position = UDim2.new(0, 0, 1, 5)
-			OptionsFrame.BackgroundColor3 = Window.Theme.Background2
-			OptionsFrame.BorderSizePixel = 0
-			OptionsFrame.Visible = false
-			OptionsFrame.ZIndex = 10
-			OptionsFrame.ClipsDescendants = true
-			OptionsFrame.Parent = DropdownFrame
-			CreateCorner(OptionsFrame, 4)
-			CreateStroke(OptionsFrame, Window.Theme.Stroke, 1)
-			
-			local OptionsList = Instance.new("UIListLayout")
-			OptionsList.Padding = UDim.new(0, 2)
-			OptionsList.Parent = OptionsFrame
-			
-			local OptionsPadding = Instance.new("UIPadding")
-			OptionsPadding.PaddingTop = UDim.new(0, 5)
-			OptionsPadding.PaddingBottom = UDim.new(0, 5)
-			OptionsPadding.PaddingLeft = UDim.new(0, 5)
-			OptionsPadding.PaddingRight = UDim.new(0, 5)
-			OptionsPadding.Parent = OptionsFrame
-			
-			for _, option in ipairs(config.Options) do
-				local OptionBtn = Instance.new("TextButton")
-				OptionBtn.Name = RandomString()
-				OptionBtn.Size = UDim2.new(1, 0, 0, 25)
-				OptionBtn.BackgroundColor3 = Window.Theme.Section
-				OptionBtn.BorderSizePixel = 0
-				OptionBtn.Text = option
-				OptionBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-				OptionBtn.Font = Enum.Font.Gotham
-				OptionBtn.TextSize = 12
-				OptionBtn.ZIndex = 11
-				OptionBtn.Parent = OptionsFrame
-				CreateCorner(OptionBtn, 4)
-				
-				OptionBtn.MouseEnter:Connect(function()
-					Tween(OptionBtn, {BackgroundColor3 = Window.Theme.Accent}, 0.2)
-				end)
-				
-				OptionBtn.MouseLeave:Connect(function()
-					Tween(OptionBtn, {BackgroundColor3 = Window.Theme.Section}, 0.2)
-				end)
-				
-				OptionBtn.MouseButton1Click:Connect(function()
-					Dropdown.Value = option
-					DropdownLabel.Text = config.Name .. ": " .. option
-					Dropdown.Open = false
-					OptionsFrame.Visible = false
-					Tween(OptionsFrame, {Size = UDim2.new(1, 0, 0, 0)}, 0.3)
-					Tween(DropdownIcon, {Rotation = 0}, 0.3)
-					pcall(config.Callback, option)
-				end)
-			end
-			
-			DropdownBtn.MouseButton1Click:Connect(function()
-				Dropdown.Open = not Dropdown.Open
-				OptionsFrame.Visible = Dropdown.Open
-				
-				if Dropdown.Open then
-					local optionsHeight = #config.Options * 27 + 10
-					Tween(OptionsFrame, {Size = UDim2.new(1, 0, 0, optionsHeight)}, 0.3)
-					Tween(DropdownIcon, {Rotation = 180}, 0.3)
-				else
-					Tween(OptionsFrame, {Size = UDim2.new(1, 0, 0, 0)}, 0.3)
-					Tween(DropdownIcon, {Rotation = 0}, 0.3)
-				end
-			end)
-			
-			function Dropdown:Set(value)
-				Dropdown.Value = value
-				DropdownLabel.Text = config.Name .. ": " .. value
-				pcall(config.Callback, value)
-			end
-			
-			return Dropdown
-		end
-		
-		function Tab:AddTextBox(config, parent)
-			config = config or {}
-			config.Name = config.Name or "TextBox"
-			config.Default = config.Default or ""
-			config.Placeholder = config.Placeholder or "Enter text..."
-			config.Callback = config.Callback or function() end
-			
-			parent = parent or TabContent
-			
-			local TextBox = {}
-			TextBox.Value = config.Default
-			
-			local TextBoxFrame = Instance.new("Frame")
-			TextBoxFrame.Name = RandomString()
-			TextBoxFrame.Size = UDim2.new(1, 0, 0, 35)
-			TextBoxFrame.BackgroundColor3 = Window.Theme.Background2
-			TextBoxFrame.BorderSizePixel = 0
-			TextBoxFrame.Parent = parent
-			CreateCorner(TextBoxFrame, 4)
-			
-			local TextBoxInput = Instance.new("TextBox")
-			TextBoxInput.Name = RandomString()
-			TextBoxInput.Size = UDim2.new(1, -20, 0, 20)
-			TextBoxInput.Position = UDim2.new(0, 10, 0.5, 0)
-			TextBoxInput.AnchorPoint = Vector2.new(0, 0.5)
-			TextBoxInput.BackgroundTransparency = 1
-			TextBoxInput.Text = config.Default
-			TextBoxInput.PlaceholderText = config.Placeholder
-			TextBoxInput.TextColor3 = Color3.fromRGB(255, 255, 255)
-			TextBoxInput.PlaceholderColor3 = Color3.fromRGB(255, 255, 255)
-			TextBoxInput.TextTransparency = 0.2
-			TextBoxInput.Font = Enum.Font.Gotham
-			TextBoxInput.TextSize = 13
-			TextBoxInput.TextXAlignment = Enum.TextXAlignment.Left
-			TextBoxInput.ClearTextOnFocus = false
-			TextBoxInput.Parent = TextBoxFrame
-			
-			TextBoxInput.FocusLost:Connect(function()
-				TextBox.Value = TextBoxInput.Text
-				pcall(config.Callback, TextBox.Value)
-			end)
-			
-			function TextBox:Set(value)
-				TextBox.Value = value
-				TextBoxInput.Text = value
-			end
-			
-			return TextBox
-		end
-		
-		function Tab:AddLabel(text, parent)
-			parent = parent or TabContent
-			
-			local Label = Instance.new("TextLabel")
-			Label.Name = RandomString()
-			Label.Size = UDim2.new(1, 0, 0, 20)
-			Label.BackgroundTransparency = 1
-			Label.Text = text
-			Label.TextColor3 = Color3.fromRGB(255, 255, 255)
-			Label.Font = Enum.Font.Gotham
-			Label.TextSize = 12
-			Label.TextTransparency = 0.5
-			Label.TextXAlignment = Enum.TextXAlignment.Left
-			Label.Parent = parent
-			
+
+		function TabSignal:CreateLabel(text)
+			text = tostring(text or 'Label')
+
+			local Label = Instance.new("Frame")
+			local UICorner = Instance.new("UICorner")
+			local LabelText = Instance.new("TextLabel")
+
+			Label.Name = "Label"
+			Label.Parent = TabContent
+			Label.BackgroundColor3 = NeverZen.Theme.ElementBackground
+			Label.BackgroundTransparency = 0.5
+			Label.BorderSizePixel = 0
+			Label.Size = UDim2.new(1, 0, 0, 35)
+
+			UICorner.CornerRadius = UDim.new(0, 8)
+			UICorner.Parent = Label
+
+			LabelText.Name = "LabelText"
+			LabelText.Parent = Label
+			LabelText.BackgroundTransparency = 1
+			LabelText.Position = UDim2.new(0, 15, 0, 0)
+			LabelText.Size = UDim2.new(1, -30, 1, 0)
+			LabelText.Font = Enum.Font.GothamMedium
+			LabelText.Text = text
+			LabelText.TextColor3 = NeverZen.Theme.TextColorDark
+			LabelText.TextSize = 12
+			LabelText.TextXAlignment = Enum.TextXAlignment.Left
+			LabelText.TextWrapped = true
+
 			return {
-				Set = function(newText)
-					Label.Text = newText
+				SetText = function(newtext)
+					LabelText.Text = tostring(newtext)
 				end
 			}
 		end
-		
-		return Tab
+
+		return TabSignal
 	end
-	
-	function Window:SetTheme(themeName)
-		if NeverZen.Themes[themeName] then
-			Window.Theme = NeverZen.Themes[themeName]
-			-- Update all UI colors here if needed
+
+	-- Resize functionality with modern design
+	do
+		local Resize = Instance.new("TextButton")
+		local IsHold = false
+
+		Resize.Name = "Resize"
+		Resize.Parent = WindowFrame
+		Resize.AnchorPoint = Vector2.new(1, 1)
+		Resize.BackgroundTransparency = 1.000
+		Resize.BorderColor3 = Color3.fromRGB(0, 0, 0)
+		Resize.BorderSizePixel = 0
+		Resize.Position = UDim2.new(1, 0, 1, 0)
+		Resize.Rotation = 0.010
+		Resize.Size = UDim2.new(0.075000003, 0, 0.075000003, 0)
+		Resize.SizeConstraint = Enum.SizeConstraint.RelativeYY
+		Resize.ZIndex = 100
+		Resize.Font = Enum.Font.SourceSans
+		Resize.Text = ""
+		Resize.TextColor3 = Color3.fromRGB(0, 0, 0)
+		Resize.TextSize = 14.000
+		Resize.Active = true
+
+		local label = Instance.new('ImageLabel',Resize)
+
+		label.BackgroundTransparency = 1
+		label.Size = UDim2.fromOffset(10,10)
+		label.ZIndex = Resize.ZIndex + 1
+		label.Image = NeverZen:GetIcon('minimize-2')
+		label.ImageColor3 = NeverZen.Theme.TextColorDark
+		label.Position = UDim2.fromScale(0.5,0.5)
+		label.AnchorPoint = Vector2.new(0.5,0.5)
+
+		Resize.InputBegan:Connect(function(std)
+			if std.UserInputType == Enum.UserInputType.MouseButton1 or std.UserInputType == Enum.UserInputType.Touch then
+				IsHold = true
+				if Services.UserInputService.TouchEnabled then
+					Resize.Size = UDim2.new(0.15000003, 85, 0.15000003, 85)
+				end
+			end
+		end)
+
+		Resize.InputEnded:Connect(function(std)
+			if std.UserInputType == Enum.UserInputType.MouseButton1 or std.UserInputType == Enum.UserInputType.Touch then
+				IsHold = false
+				Resize.Size = UDim2.new(0.075000003, 0, 0.075000003, 0)
+			end
+		end)
+
+		Services.UserInputService.InputChanged:Connect(function(input)
+			if IsHold and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) and WindowSignal.Toggle then
+				local pios = input.Position;
+				local x = (pios.X - WindowFrame.AbsolutePosition.X) 
+
+				local y = (pios.Y - WindowFrame.AbsolutePosition.Y) 
+
+				if x < 390 then x = 390 end
+				if y < 240 then y = 240 end
+
+				local Offset = UDim2.new(0,x,0,y)
+
+				TweenService:Create(WindowFrame , TweenInfo.new(0.05),{
+					Size = Offset,
+				}):Play();
+
+				WindowSignal.Config.Scale = Offset
+			end;
+		end);
+	end;
+
+	-- Dragging functionality
+	local dragToggle = nil
+	local dragSpeed = 0.15
+	local dragStart = nil
+	local startPos = nil
+
+	local function updateInput(input)
+		local delta = input.Position - dragStart
+		local position = UDim2.new(startPos.X.Scale, math.max(startPos.X.Offset + delta.X , -10),
+			startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+
+		TweenService:Create(WindowFrame, TweenInfo.new(dragSpeed), {Position = position}):Play()
+	end
+
+	Header.InputBegan:Connect(function(input)
+		if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then 
+			dragToggle = true
+			dragStart = input.Position
+			startPos = WindowFrame.Position
+			input.Changed:Connect(function()
+				if input.UserInputState == Enum.UserInputState.End then
+					dragToggle = false
+				end
+			end)
 		end
-	end
-	
-	function Window:Destroy()
-		ScreenGui:Destroy()
-	end
-	
-	return Window
-end
+	end)
+
+	Services.UserInputService.InputChanged:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+			if dragToggle then
+				updateInput(input)
+			end
+		end
+	end)
+
+	return WindowSignal;
+end;
+
+function NeverZen:CreateNotifier()
+	local Content = Instance.new("ScreenGui")
+	local Notification = Instance.new("Frame")
+	local UIListLayout = Instance.new("UIListLayout")
+
+	Content.Name = NeverZen:RandomString()
+	Content.Parent = Services.CoreGui;
+	Content.ResetOnSpawn = false
+	Content.IgnoreGuiInset = true
+	Content.ZIndexBehavior = Enum.ZIndexBehavior.Global;
+
+	NeverZen.ProtectGui(Content)
+
+	Notification.Name = NeverZen:RandomString()
+	Notification.Parent = Content
+	Notification.AnchorPoint = Vector2.new(1, 1)
+	Notification.BackgroundColor3 = NeverZen.Theme.WindowBackgroundColor
+	Notification.BackgroundTransparency = 1.000
+	Notification.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	Notification.BorderSizePixel = 0
+	Notification.Position = UDim2.new(1, -5, 1, -5)
+	Notification.Size = UDim2.new(0, 300, 0, 65)
+	Notification.ZIndex = 100
+
+	UIListLayout.Parent = Notification
+	UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+	UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
+	UIListLayout.Padding = UDim.new(0,8)
+
+	return {
+		new = function(head , body , duration)
+			local Notify = Instance.new("Frame")
+			local UICorner = Instance.new("UICorner")
+			local UIStroke = Instance.new("UIStroke")
+			local Header = Instance.new("TextLabel")
+			local Body = Instance.new("TextLabel")
+			local AccentBar = Instance.new("Frame")
+			local BarCorner = Instance.new("UICorner")
+
+			Notify.Name = NeverZen:RandomString()
+			Notify.Parent = Notification
+			Notify.BackgroundColor3 = NeverZen.Theme.WindowBackgroundColor
+			Notify.BackgroundTransparency = 0.05
+			Notify.BorderColor3 = Color3.fromRGB(0, 0, 0)
+			Notify.BorderSizePixel = 0
+			Notify.Size = UDim2.new(0, 0, 0, 0)
+			Notify.ClipsDescendants = true
+
+			UICorner.CornerRadius = UDim.new(0, 10)
+			UICorner.Parent = Notify
+
+			UIStroke.Color = NeverZen.Theme.BorderColor
+			UIStroke.Transparency = 0.5
+			UIStroke.Parent = Notify
+
+			-- Accent bar
+			AccentBar.Name = "AccentBar"
+			AccentBar.Parent = Notify
+			AccentBar.BackgroundColor3 = NeverZen.Theme.Accent
+			AccentBar.BorderSizePixel = 0
+			AccentBar.Size = UDim2.new(0, 4, 1, 0)
+
+			BarCorner.CornerRadius = UDim.new(0, 10)
+			BarCorner.Parent = AccentBar
+
+			Header.Name = NeverZen:RandomString()
+			Header.Parent = Notify
+			Header.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			Header.BackgroundTransparency = 1.000
+			Header.BorderColor3 = Color3.fromRGB(0, 0, 0)
+			Header.BorderSizePixel = 0
+			Header.Position = UDim2.new(0, 12, 0, 8)
+			Header.Size = UDim2.new(1, -24, 0, 20)
+			Header.Font = Enum.Font.GothamBold
+			Header.Text = head
+			Header.TextColor3 = NeverZen.Theme.TextColor
+			Header.TextSize = 14.000
+			Header.TextXAlignment = Enum.TextXAlignment.Left
+
+			Body.Name = NeverZen:RandomString()
+			Body.Parent = Notify
+			Body.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			Body.BackgroundTransparency = 1.000
+			Body.BorderColor3 = Color3.fromRGB(0, 0, 0)
+			Body.BorderSizePixel = 0
+			Body.Position = UDim2.new(0, 12, 0, 28)
+			Body.Size = UDim2.new(1, -24, 1, -36)
+			Body.Font = Enum.Font.GothamMedium
+			Body.Text = body
+			Body.TextColor3 = NeverZen.Theme.TextColorDark
+			Body.TextSize = 12.000
+			Body.TextXAlignment = Enum.TextXAlignment.Left
+			Body.TextYAlignment = Enum.TextYAlignment.Top
+			Body.TextWrapped = true
+
+			local Min = TextService:GetTextSize(Header.Text,Header.TextSize,Header.Font,Vector2.new(math.huge,math.huge));
+			local scale = TextService:GetTextSize(Body.Text,Body.TextSize,Body.Font,Vector2.new(math.huge,math.huge));
+
+			-- Slide in animation
+			TweenService:Create(Notify,TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),{
+				Size = UDim2.new(0, math.clamp(scale.X + 35 , Min.X + 25 , 300), 0, math.max(scale.Y + 45, 70))
+			}):Play()
+
+			-- Add subtle glow
+			NeverZen:AddGlow(Notify)
+
+			task.delay(duration or 5, function()
+				TweenService:Create(Notify,TweenInfo.new(0.3, Enum.EasingStyle.Quint),{
+					Size = UDim2.new(0, 0, 0, 0)
+				}):Play()
+				task.wait(0.3)
+				Notify:Destroy()
+			end)
+		end,
+	}
+end;
 
 return NeverZen
