@@ -21,7 +21,7 @@ Welcome to **Allusive UI Library**, a sleek and highly customizable Roblox UI li
 Load the library with:
 
 ```lua
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/MarchHubOnTopFr/Allusive-UI/refs/heads/main/Source.lua"))()
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/AchaoticSoftworksCore/AchaoticAssets/refs/heads/main/UiLibrarys/Allusive.luau"))()
 local main = Library.new()
 
 main:load() -- Initialize the UI
@@ -249,7 +249,7 @@ Library.SendNotification({
 ## Custom Example
 
 ```lua
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/MarchHubOnTopFr/Allusive-UI/refs/heads/main/Source.lua"))()
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/AchaoticSoftworksCore/AchaoticAssets/refs/heads/main/UiLibrarys/Allusive.luau"))()
 local main = Library.new()
 
 -- Tabs
