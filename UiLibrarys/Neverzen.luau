@@ -2353,7 +2353,7 @@ function NeverZen.new(config)
 				Slider.BackgroundTransparency = 1.000
 				Slider.BorderColor3 = Color3.fromRGB(0, 0, 0)
 				Slider.BorderSizePixel = 0
-				Slider.Size = UDim2.new(1, -5, 0, 22) -- Reduced from 25 to 22
+				Slider.Size = UDim2.new(1, -5, 0, Services.UserInputService.TouchEnabled and 36 or 24)
 
 				value.Name = "value"
 				value.Parent = Slider
@@ -2414,6 +2414,16 @@ function NeverZen.new(config)
 				UIStroke_2.Color = NeverZen.Theme.StrokeColor
 				UIStroke_2.Parent = con
 
+				-- Invisible expanded hit area for mobile touch accuracy
+				local hitArea = Instance.new("Frame")
+				hitArea.Name = "hitArea"
+				hitArea.Parent = con
+				hitArea.BackgroundTransparency = 1
+				hitArea.AnchorPoint = Vector2.new(0.5, 0.5)
+				hitArea.Position = UDim2.new(0.5, 0, 0.5, 0)
+				hitArea.Size = UDim2.new(1, 0, 0, Services.UserInputService.TouchEnabled and 44 or 20)
+				hitArea.ZIndex = con.ZIndex + 5
+
 				block.Name = "block"
 				block.Parent = con
 				block.BackgroundColor3 = NeverZen.Theme.Hightlight
@@ -2433,7 +2443,7 @@ function NeverZen.new(config)
 				move.BorderColor3 = Color3.fromRGB(0, 0, 0)
 				move.BorderSizePixel = 0
 				move.Position = UDim2.new(1, 0, 0.5, 0)
-				move.Size = UDim2.new(2, 0, 2, 0)
+				move.Size = UDim2.new(Services.UserInputService.TouchEnabled and 3 or 2, 0, Services.UserInputService.TouchEnabled and 3 or 2, 0)
 				move.SizeConstraint = Enum.SizeConstraint.RelativeYY
 
 				UICorner_4.CornerRadius = UDim.new(1, 0)
@@ -2472,14 +2482,18 @@ function NeverZen.new(config)
 					config.Callback(Value,config)
 				end;
 
-				con.InputBegan:Connect(function(Input)
+				local function onInputBegan(Input)
 					if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
 						IsHold = true
 						update(Input)
 					end
-				end)
+				end
 
-				con.InputEnded:Connect(function(Input)
+				con.InputBegan:Connect(onInputBegan)
+				hitArea.InputBegan:Connect(onInputBegan)
+
+				-- Global InputEnded so releasing outside the element still stops drag
+				Services.UserInputService.InputEnded:Connect(function(Input)
 					if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
 						IsHold = false
 					end
@@ -2487,15 +2501,9 @@ function NeverZen.new(config)
 
 				Services.UserInputService.InputChanged:Connect(function(Input)
 					if IsHold then
-						if (Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch)  then
+						if (Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch) then
 							update(Input)
 						end
-
-						if Services.UserInputService.TouchEnabled then
-							if not NeverZen:IsMouseOverFrame(Slider) then
-								IsHold = false
-							end;
-						end;
 					end
 				end);
 
