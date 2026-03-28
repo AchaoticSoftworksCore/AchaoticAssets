@@ -2353,7 +2353,7 @@ function NeverZen.new(config)
 				Slider.BackgroundTransparency = 1.000
 				Slider.BorderColor3 = Color3.fromRGB(0, 0, 0)
 				Slider.BorderSizePixel = 0
-				Slider.Size = UDim2.new(1, -5, 0, Services.UserInputService.TouchEnabled and 36 or 24)
+				Slider.Size = UDim2.new(1, -5, 0, 22)
 
 				value.Name = "value"
 				value.Parent = Slider
@@ -2440,6 +2440,7 @@ function NeverZen.new(config)
 				move.Parent = block
 				move.AnchorPoint = Vector2.new(0.5, 0.5)
 				move.BackgroundColor3 = NeverZen.Theme.Hightlight
+				move.BackgroundTransparency = 1
 				move.BorderColor3 = Color3.fromRGB(0, 0, 0)
 				move.BorderSizePixel = 0
 				move.Position = UDim2.new(1, 0, 0.5, 0)
