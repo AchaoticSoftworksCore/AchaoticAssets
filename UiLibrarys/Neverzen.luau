@@ -1180,7 +1180,6 @@ function NeverZen.new(config)
 	local UIStroke_2 = Instance.new("UIStroke")
 	local UICorner_2 = Instance.new("UICorner")
 	local TextBox = Instance.new("TextBox")
-	local SettingsButton = Instance.new("ImageButton")
 	local MinButton = Instance.new("ImageButton")
 	local Line_2 = Instance.new("Frame")
 	local BthFrames = Instance.new("Frame")
@@ -1418,17 +1417,6 @@ function NeverZen.new(config)
 			end
 		end;
 	end)
-
-	SettingsButton.Name = NeverZen:RandomString()
-	SettingsButton.Parent = Frame
-	SettingsButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	SettingsButton.BackgroundTransparency = 1.000
-	SettingsButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
-	SettingsButton.BorderSizePixel = 0
-	SettingsButton.Size = UDim2.new(0.899999976, 0, 0.899999976, 0)
-	SettingsButton.SizeConstraint = Enum.SizeConstraint.RelativeYY
-	SettingsButton.Image = "rbxassetid://10734950309"
-	SettingsButton.ImageTransparency = 0.200
 
 	MinButton.Name = NeverZen:RandomString()
 	MinButton.Parent = Frame
@@ -3436,15 +3424,7 @@ function NeverZen.new(config)
 				Transparency = 1
 			}):Play()
 
-			TweenService:Create(SettingsButton,TweenInfo.new(0.3,Enum.EasingStyle.Quint,Enum.EasingDirection.InOut),{
-				Size = UDim2.new(0, 0, 0, 0)
-			}):Play()
-
 		else
-			TweenService:Create(SettingsButton,TweenInfo.new(1,Enum.EasingStyle.Quint,Enum.EasingDirection.InOut),{
-				Size = UDim2.new(0.899999976, 0, 0.899999976, 0)
-			}):Play()
-
 			TweenService:Create(UIStroke_2,TweenInfo.new(0.3,Enum.EasingStyle.Quint,Enum.EasingDirection.InOut),{
 				Transparency = 0
 			}):Play()
