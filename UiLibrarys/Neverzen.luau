@@ -1171,6 +1171,7 @@ function NeverZen.new(config)
 	local UIStroke = Instance.new("UIStroke")
 	local Header = Instance.new("Frame")
 	local HeaderText = Instance.new("TextLabel")
+	local SubTitleText = Instance.new("TextLabel")
 	local Line = Instance.new("Frame")
 	local Frame = Instance.new("Frame")
 	local UIListLayout = Instance.new("UIListLayout")
@@ -1262,6 +1263,10 @@ function NeverZen.new(config)
 		}):Play()
 	end;
 
+	function WindowSignal:SetSubTitle(text)
+		SubTitleText.Text = text or ""
+	end;
+
 	UICorner.CornerRadius = UDim.new(0, 4)
 	UICorner.Parent = WindowFrame
 
@@ -1317,6 +1322,23 @@ function NeverZen.new(config)
 	Line.BorderSizePixel = 0
 	Line.Position = UDim2.new(0, 170, 1, 0)
 	Line.Size = UDim2.new(1, -170, 0, 1)
+
+	SubTitleText.Name = NeverZen:RandomString()
+	SubTitleText.Parent = Header
+	SubTitleText.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	SubTitleText.BackgroundTransparency = 1.000
+	SubTitleText.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	SubTitleText.BorderSizePixel = 0
+	SubTitleText.AnchorPoint = Vector2.new(0, 0.5)
+	SubTitleText.Position = UDim2.new(0, 178, 0.5, 0)
+	SubTitleText.Size = UDim2.new(1, -340, 0, 16)
+	SubTitleText.Font = Enum.Font.GothamMedium
+	SubTitleText.Text = config.SubTitle or ""
+	SubTitleText.TextColor3 = NeverZen.Theme.HeadText
+	SubTitleText.TextSize = 13.000
+	SubTitleText.TextTransparency = 0.550
+	SubTitleText.TextXAlignment = Enum.TextXAlignment.Left
+	SubTitleText.ClipsDescendants = true
 
 	Frame.Parent = Header
 	Frame.AnchorPoint = Vector2.new(1, 0.5)
