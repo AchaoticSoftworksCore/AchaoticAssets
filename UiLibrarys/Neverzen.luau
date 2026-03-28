@@ -2443,7 +2443,7 @@ function NeverZen.new(config)
 				move.BorderColor3 = Color3.fromRGB(0, 0, 0)
 				move.BorderSizePixel = 0
 				move.Position = UDim2.new(1, 0, 0.5, 0)
-				move.Size = UDim2.new(Services.UserInputService.TouchEnabled and 3 or 2, 0, Services.UserInputService.TouchEnabled and 3 or 2, 0)
+				move.Size = UDim2.new(2, 0, 2, 0)
 				move.SizeConstraint = Enum.SizeConstraint.RelativeYY
 
 				UICorner_4.CornerRadius = UDim.new(1, 0)
