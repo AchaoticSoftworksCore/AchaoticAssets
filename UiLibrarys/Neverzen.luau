@@ -1297,12 +1297,12 @@ function NeverZen.new(config)
 	HeaderText.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	HeaderText.BorderSizePixel = 0
 	HeaderText.Position = UDim2.new(0, 10, 0, -55)
-	HeaderText.Size = UDim2.new(0, 150, 1, -10)
+	HeaderText.Size = UDim2.new(0, 100, 1, -10)
 	HeaderText.Font = Enum.Font.GothamBold
 	HeaderText.Text = config.Name;
 	HeaderText.TextColor3 = NeverZen.Theme.HeadText
-	HeaderText.TextScaled = true
-	HeaderText.TextSize = 14.000
+	HeaderText.TextScaled = false
+	HeaderText.TextSize = 13.000
 	HeaderText.TextWrapped = true
 
 	table.insert(WindowSignal.FrameMemory.HeadText , HeaderText)
@@ -1328,15 +1328,15 @@ function NeverZen.new(config)
 	SubTitleText.BackgroundTransparency = 1.000
 	SubTitleText.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	SubTitleText.BorderSizePixel = 0
-	SubTitleText.AnchorPoint = Vector2.new(0, 1)
-	SubTitleText.Position = UDim2.new(0, 12, 1, -3)
-	SubTitleText.Size = UDim2.new(0, 155, 0, 13)
+	SubTitleText.AnchorPoint = Vector2.new(1, 0.5)
+	SubTitleText.Position = UDim2.new(0, 163, 0.5, 0)
+	SubTitleText.Size = UDim2.new(0, 100, 0, 15)
 	SubTitleText.Font = Enum.Font.GothamMedium
 	SubTitleText.Text = config.SubTitle or ""
 	SubTitleText.TextColor3 = NeverZen.Theme.HeadText
-	SubTitleText.TextSize = 11.000
+	SubTitleText.TextSize = 12.000
 	SubTitleText.TextTransparency = 0.500
-	SubTitleText.TextXAlignment = Enum.TextXAlignment.Left
+	SubTitleText.TextXAlignment = Enum.TextXAlignment.Right
 	SubTitleText.ClipsDescendants = true
 
 	Frame.Parent = Header
