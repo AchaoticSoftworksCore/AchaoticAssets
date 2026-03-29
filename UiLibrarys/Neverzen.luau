@@ -1302,6 +1302,7 @@ function NeverZen.new(config)
 	HeaderText.Text = config.Name;
 	HeaderText.TextColor3 = NeverZen.Theme.HeadText
 	HeaderText.TextScaled = false
+	HeaderText.TextXAlignment = Enum.TextXAlignment.Left
 	HeaderText.TextSize = 25.000
 	HeaderText.TextWrapped = true
 
