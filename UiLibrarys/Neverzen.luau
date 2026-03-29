@@ -1328,14 +1328,14 @@ function NeverZen.new(config)
 	SubTitleText.BackgroundTransparency = 1.000
 	SubTitleText.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	SubTitleText.BorderSizePixel = 0
-	SubTitleText.AnchorPoint = Vector2.new(0, 0.5)
-	SubTitleText.Position = UDim2.new(0, 178, 0.5, 0)
-	SubTitleText.Size = UDim2.new(1, -340, 0, 16)
+	SubTitleText.AnchorPoint = Vector2.new(0, 1)
+	SubTitleText.Position = UDim2.new(0, 12, 1, -3)
+	SubTitleText.Size = UDim2.new(0, 155, 0, 13)
 	SubTitleText.Font = Enum.Font.GothamMedium
 	SubTitleText.Text = config.SubTitle or ""
 	SubTitleText.TextColor3 = NeverZen.Theme.HeadText
-	SubTitleText.TextSize = 13.000
-	SubTitleText.TextTransparency = 0.550
+	SubTitleText.TextSize = 11.000
+	SubTitleText.TextTransparency = 0.500
 	SubTitleText.TextXAlignment = Enum.TextXAlignment.Left
 	SubTitleText.ClipsDescendants = true
 
@@ -1426,7 +1426,7 @@ function NeverZen.new(config)
 	MinButton.BorderSizePixel = 0
 	MinButton.Size = UDim2.new(1, 0, 1, 0)
 	MinButton.SizeConstraint = Enum.SizeConstraint.RelativeYY
-	MinButton.Image = "rbxassetid://9886659001"
+	MinButton.Image = NeverZen:GetIcon('scan')
 	MinButton.ImageTransparency = 0.200
 
 	Line_2.Name = NeverZen:RandomString()
@@ -3377,6 +3377,381 @@ function NeverZen.new(config)
 						Dropown.Visible = value;
 					end,
 				};
+			end;
+
+			function SectionSignal:AddColorPicker(config)
+				config = config or {};
+				config.Name = config.Name or "Color";
+				config.Default = config.Default or Color3.fromRGB(255, 255, 255);
+				config.Callback = config.Callback or function() end;
+
+				local currentColor = config.Default;
+
+				local Row = Instance.new("Frame")
+				local Label = Instance.new("TextLabel")
+				local Swatch = Instance.new("Frame")
+				local UICorner_sw = Instance.new("UICorner")
+				local UIStroke_sw = Instance.new("UIStroke")
+
+				table.insert(itemForSearch, { Frame = Row, Name = config.Name })
+
+				Row.Name = NeverZen:RandomString()
+				Row.Parent = Section
+				Row.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+				Row.BackgroundTransparency = 1
+				Row.BorderSizePixel = 0
+				Row.Size = UDim2.new(1, -5, 0, 25)
+
+				Label.Parent = Row
+				Label.AnchorPoint = Vector2.new(0, 0.5)
+				Label.BackgroundTransparency = 1
+				Label.BorderSizePixel = 0
+				Label.Position = UDim2.new(0, 5, 0.5, 0)
+				Label.Size = UDim2.new(1, -35, 0.65, 0)
+				Label.Font = Enum.Font.GothamMedium
+				Label.Text = config.Name
+				Label.TextColor3 = Color3.fromRGB(255, 255, 255)
+				Label.TextSize = 14
+				Label.TextTransparency = 0.25
+				Label.TextXAlignment = Enum.TextXAlignment.Left
+
+				Swatch.Name = "Swatch"
+				Swatch.Parent = Row
+				Swatch.AnchorPoint = Vector2.new(1, 0.5)
+				Swatch.BackgroundColor3 = currentColor
+				Swatch.BorderSizePixel = 0
+				Swatch.Position = UDim2.new(1, -3, 0.5, 0)
+				Swatch.Size = UDim2.new(0, 28, 0, 15)
+
+				UICorner_sw.CornerRadius = UDim.new(0, 4)
+				UICorner_sw.Parent = Swatch
+
+				UIStroke_sw.Color = NeverZen.Theme.StrokeColor
+				UIStroke_sw.Parent = Swatch
+
+				-- Picker popup
+				local Picker = Instance.new("Frame")
+				local UICorner_pk = Instance.new("UICorner")
+				local UIStroke_pk = Instance.new("UIStroke")
+
+				-- SV field (square gradient)
+				local SVField = Instance.new("Frame")
+				local SVWhite = Instance.new("UIGradient")
+				local SVBlack = Instance.new("Frame")
+				local SVBlackGrad = Instance.new("UIGradient")
+				local SVCursor = Instance.new("Frame")
+				local UICorner_svc = Instance.new("UICorner")
+
+				-- Hue bar
+				local HueBar = Instance.new("Frame")
+				local HueGrad = Instance.new("UIGradient")
+				local UICorner_hb = Instance.new("UICorner")
+				local HueCursor = Instance.new("Frame")
+				local UICorner_hc = Instance.new("UICorner")
+
+				-- RGB inputs row
+				local RGBRow = Instance.new("Frame")
+				local UIListLayout_rgb = Instance.new("UIListLayout")
+
+				-- Hex input
+				local HexFrame = Instance.new("Frame")
+				local UICorner_hex = Instance.new("UICorner")
+				local UIStroke_hex = Instance.new("UIStroke")
+				local HexBox = Instance.new("TextBox")
+
+				Picker.Name = NeverZen:RandomString()
+				Picker.Parent = Content
+				Picker.BackgroundColor3 = NeverZen.Theme.WindowBackgroundColor
+				Picker.BackgroundTransparency = 0.05
+				Picker.BorderSizePixel = 0
+				Picker.Size = UDim2.new(0, 165, 0, 175)
+				Picker.ZIndex = 200
+				Picker.Visible = false
+				Picker.ClipsDescendants = true
+
+				UICorner_pk.CornerRadius = UDim.new(0, 5)
+				UICorner_pk.Parent = Picker
+
+				UIStroke_pk.Color = NeverZen.Theme.BackgroundColor
+				UIStroke_pk.Parent = Picker
+
+				-- SV field
+				SVField.Name = "SVField"
+				SVField.Parent = Picker
+				SVField.BackgroundColor3 = Color3.fromHSV(0, 1, 1)
+				SVField.BorderSizePixel = 0
+				SVField.Position = UDim2.new(0, 8, 0, 8)
+				SVField.Size = UDim2.new(1, -16, 0, 100)
+				SVField.ZIndex = 201
+				SVField.ClipsDescendants = true
+
+				local UICorner_svf = Instance.new("UICorner")
+				UICorner_svf.CornerRadius = UDim.new(0, 3)
+				UICorner_svf.Parent = SVField
+
+				SVWhite.Color = ColorSequence.new{
+					ColorSequenceKeypoint.new(0, Color3.new(1,1,1)),
+					ColorSequenceKeypoint.new(1, Color3.new(1,1,1))
+				}
+				SVWhite.Transparency = NumberSequence.new{
+					NumberSequenceKeypoint.new(0, 0),
+					NumberSequenceKeypoint.new(1, 1)
+				}
+				SVWhite.Rotation = 0
+				SVWhite.Parent = SVField
+
+				SVBlack.BackgroundColor3 = Color3.new(0,0,0)
+				SVBlack.BorderSizePixel = 0
+				SVBlack.Size = UDim2.fromScale(1,1)
+				SVBlack.ZIndex = 202
+				SVBlack.Parent = SVField
+
+				local UICorner_svb = Instance.new("UICorner")
+				UICorner_svb.CornerRadius = UDim.new(0, 3)
+				UICorner_svb.Parent = SVBlack
+
+				SVBlackGrad.Transparency = NumberSequence.new{
+					NumberSequenceKeypoint.new(0, 1),
+					NumberSequenceKeypoint.new(1, 0)
+				}
+				SVBlackGrad.Rotation = 90
+				SVBlackGrad.Parent = SVBlack
+
+				SVCursor.BackgroundColor3 = Color3.new(1,1,1)
+				SVCursor.BorderSizePixel = 0
+				SVCursor.AnchorPoint = Vector2.new(0.5, 0.5)
+				SVCursor.Size = UDim2.fromOffset(8, 8)
+				SVCursor.ZIndex = 205
+				SVCursor.Parent = SVField
+				UICorner_svc.CornerRadius = UDim.new(1,0)
+				UICorner_svc.Parent = SVCursor
+
+				local UIStroke_svc = Instance.new("UIStroke")
+				UIStroke_svc.Color = Color3.new(0,0,0)
+				UIStroke_svc.Thickness = 1.5
+				UIStroke_svc.Parent = SVCursor
+
+				-- Hue bar
+				HueBar.Parent = Picker
+				HueBar.BackgroundColor3 = Color3.new(1,1,1)
+				HueBar.BorderSizePixel = 0
+				HueBar.Position = UDim2.new(0, 8, 0, 116)
+				HueBar.Size = UDim2.new(1, -16, 0, 10)
+				HueBar.ZIndex = 201
+				UICorner_hb.CornerRadius = UDim.new(1, 0)
+				UICorner_hb.Parent = HueBar
+
+				HueGrad.Color = ColorSequence.new{
+					ColorSequenceKeypoint.new(0,    Color3.fromHSV(0,1,1)),
+					ColorSequenceKeypoint.new(0.167,Color3.fromHSV(0.167,1,1)),
+					ColorSequenceKeypoint.new(0.333,Color3.fromHSV(0.333,1,1)),
+					ColorSequenceKeypoint.new(0.5,  Color3.fromHSV(0.5,1,1)),
+					ColorSequenceKeypoint.new(0.667,Color3.fromHSV(0.667,1,1)),
+					ColorSequenceKeypoint.new(0.833,Color3.fromHSV(0.833,1,1)),
+					ColorSequenceKeypoint.new(1,    Color3.fromHSV(1,1,1)),
+				}
+				HueGrad.Parent = HueBar
+
+				HueCursor.BackgroundColor3 = Color3.new(1,1,1)
+				HueCursor.BorderSizePixel = 0
+				HueCursor.AnchorPoint = Vector2.new(0.5, 0.5)
+				HueCursor.Size = UDim2.fromOffset(6, 14)
+				HueCursor.Position = UDim2.new(0, 0, 0.5, 0)
+				HueCursor.ZIndex = 205
+				HueCursor.Parent = HueBar
+				UICorner_hc.CornerRadius = UDim.new(0, 2)
+				UICorner_hc.Parent = HueCursor
+
+				local UIStroke_hc = Instance.new("UIStroke")
+				UIStroke_hc.Color = Color3.new(0,0,0)
+				UIStroke_hc.Thickness = 1
+				UIStroke_hc.Parent = HueCursor
+
+				-- Hex input
+				HexFrame.Parent = Picker
+				HexFrame.BackgroundColor3 = NeverZen.Theme.BackgroundColor
+				HexFrame.BorderSizePixel = 0
+				HexFrame.Position = UDim2.new(0, 8, 0, 134)
+				HexFrame.Size = UDim2.new(1, -16, 0, 16)
+				HexFrame.ZIndex = 201
+				UICorner_hex.CornerRadius = UDim.new(0, 4)
+				UICorner_hex.Parent = HexFrame
+				UIStroke_hex.Color = NeverZen.Theme.StrokeColor
+				UIStroke_hex.Parent = HexFrame
+
+				HexBox.Parent = HexFrame
+				HexBox.BackgroundTransparency = 1
+				HexBox.BorderSizePixel = 0
+				HexBox.Position = UDim2.new(0, 5, 0, 0)
+				HexBox.Size = UDim2.new(1, -10, 1, 0)
+				HexBox.Font = Enum.Font.GothamMedium
+				HexBox.Text = currentColor:ToHex():upper()
+				HexBox.TextColor3 = Color3.new(1,1,1)
+				HexBox.TextTransparency = 0.2
+				HexBox.TextSize = 11
+				HexBox.TextXAlignment = Enum.TextXAlignment.Left
+				HexBox.ZIndex = 202
+				HexBox.ClearTextOnFocus = false
+				HexBox.MaxVisibleGraphemes = 6
+
+				-- Preview + label row
+				local PreviewRow = Instance.new("Frame")
+				PreviewRow.Parent = Picker
+				PreviewRow.BackgroundTransparency = 1
+				PreviewRow.BorderSizePixel = 0
+				PreviewRow.Position = UDim2.new(0, 8, 0, 156)
+				PreviewRow.Size = UDim2.new(1, -16, 0, 13)
+				PreviewRow.ZIndex = 201
+
+				local PreviewSwatch = Instance.new("Frame")
+				PreviewSwatch.Parent = PreviewRow
+				PreviewSwatch.BackgroundColor3 = currentColor
+				PreviewSwatch.BorderSizePixel = 0
+				PreviewSwatch.AnchorPoint = Vector2.new(1, 0.5)
+				PreviewSwatch.Position = UDim2.new(1, 0, 0.5, 0)
+				PreviewSwatch.Size = UDim2.fromOffset(28, 13)
+				PreviewSwatch.ZIndex = 202
+				local UICorner_pv = Instance.new("UICorner")
+				UICorner_pv.CornerRadius = UDim.new(0, 3)
+				UICorner_pv.Parent = PreviewSwatch
+
+				local RGBLabel = Instance.new("TextLabel")
+				RGBLabel.Parent = PreviewRow
+				RGBLabel.BackgroundTransparency = 1
+				RGBLabel.BorderSizePixel = 0
+				RGBLabel.AnchorPoint = Vector2.new(0, 0.5)
+				RGBLabel.Position = UDim2.new(0, 0, 0.5, 0)
+				RGBLabel.Size = UDim2.new(1, -36, 1, 0)
+				RGBLabel.Font = Enum.Font.GothamMedium
+				RGBLabel.TextColor3 = Color3.new(1,1,1)
+				RGBLabel.TextTransparency = 0.4
+				RGBLabel.TextSize = 10
+				RGBLabel.TextXAlignment = Enum.TextXAlignment.Left
+				RGBLabel.ZIndex = 202
+
+				local function colorToRGBStr(c)
+					return math.round(c.R*255)..", "..math.round(c.G*255)..", "..math.round(c.B*255)
+				end
+
+				local hue, sat, val = Color3.toHSV(currentColor)
+
+				local function applyColor(h, s, v)
+					hue, sat, val = h, s, v
+					currentColor = Color3.fromHSV(h, s, v)
+					Swatch.BackgroundColor3 = currentColor
+					PreviewSwatch.BackgroundColor3 = currentColor
+					SVField.BackgroundColor3 = Color3.fromHSV(h, 1, 1)
+					HexBox.Text = currentColor:ToHex():upper()
+					RGBLabel.Text = colorToRGBStr(currentColor)
+					-- SV cursor
+					SVCursor.Position = UDim2.new(s, 0, 1-v, 0)
+					-- Hue cursor
+					HueCursor.Position = UDim2.new(h, 0, 0.5, 0)
+					config.Callback(currentColor, config)
+				end
+
+				applyColor(hue, sat, val)
+
+				-- SV drag
+				local svDrag = false
+				local hueDrag = false
+
+				SVField.InputBegan:Connect(function(inp)
+					if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+						svDrag = true
+						local rel = inp.Position - SVField.AbsolutePosition
+						local s2 = math.clamp(rel.X / SVField.AbsoluteSize.X, 0, 1)
+						local v2 = math.clamp(1 - (rel.Y / SVField.AbsoluteSize.Y), 0, 1)
+						applyColor(hue, s2, v2)
+					end
+				end)
+
+				HueBar.InputBegan:Connect(function(inp)
+					if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+						hueDrag = true
+						local rel = inp.Position - HueBar.AbsolutePosition
+						local h2 = math.clamp(rel.X / HueBar.AbsoluteSize.X, 0, 1)
+						applyColor(h2, sat, val)
+					end
+				end)
+
+				Services.UserInputService.InputEnded:Connect(function(inp)
+					if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+						svDrag = false
+						hueDrag = false
+					end
+				end)
+
+				Services.UserInputService.InputChanged:Connect(function(inp)
+					if inp.UserInputType == Enum.UserInputType.MouseMovement or inp.UserInputType == Enum.UserInputType.Touch then
+						if svDrag then
+							local rel = inp.Position - SVField.AbsolutePosition
+							local s2 = math.clamp(rel.X / SVField.AbsoluteSize.X, 0, 1)
+							local v2 = math.clamp(1 - (rel.Y / SVField.AbsoluteSize.Y), 0, 1)
+							applyColor(hue, s2, v2)
+						elseif hueDrag then
+							local rel = inp.Position - HueBar.AbsolutePosition
+							local h2 = math.clamp(rel.X / HueBar.AbsoluteSize.X, 0, 1)
+							applyColor(h2, sat, val)
+						end
+					end
+				end)
+
+				HexBox.FocusLost:Connect(function()
+					local hex = HexBox.Text:gsub("#","")
+					if #hex == 6 then
+						local ok, c = pcall(function() return Color3.fromHex(hex) end)
+						if ok then
+							local h2, s2, v2 = Color3.toHSV(c)
+							applyColor(h2, s2, v2)
+						end
+					end
+					HexBox.Text = currentColor:ToHex():upper()
+				end)
+
+				-- Open/close picker
+				local pickerOpen = false
+
+				local function updatePickerPos()
+					Picker.Position = UDim2.fromOffset(
+						Swatch.AbsolutePosition.X + Swatch.AbsoluteSize.X - Picker.AbsoluteSize.X,
+						Swatch.AbsolutePosition.Y + Swatch.AbsoluteSize.Y + 4
+					)
+				end
+
+				NeverZen:NewInput(Swatch, function()
+					if not Content.Enabled or not Content.Parent then return end
+					pickerOpen = not pickerOpen
+					if pickerOpen then
+						updatePickerPos()
+						Picker.Visible = true
+					else
+						Picker.Visible = false
+					end
+				end)
+
+				Services.UserInputService.InputBegan:Connect(function(inp)
+					if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+						if pickerOpen and not NeverZen:IsMouseOverFrame(Picker) and not NeverZen:IsMouseOverFrame(Swatch) then
+							pickerOpen = false
+							Picker.Visible = false
+						end
+					end
+				end)
+
+				return {
+					SetValue = function(self, newColor)
+						local h2, s2, v2 = Color3.toHSV(newColor)
+						applyColor(h2, s2, v2)
+					end,
+					GetValue = function(self)
+						return currentColor
+					end,
+					Fire = config.Callback,
+					Visible = function(self, value)
+						Row.Visible = value
+					end,
+				}
 			end;
 
 			return SectionSignal;
