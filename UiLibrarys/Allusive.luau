@@ -658,11 +658,115 @@ function Library:create_ui()
     Minimize.TextSize = 14
     Minimize.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     Minimize.Parent = Handler
-    
+
+    -- Search Button (top-right of header bar)
+    local SearchButton = Instance.new('TextButton')
+    SearchButton.Name = 'SearchButton'
+    SearchButton.Text = ''
+    SearchButton.AutoButtonColor = false
+    SearchButton.BackgroundTransparency = 1
+    SearchButton.BorderSizePixel = 0
+    SearchButton.Size = UDim2.new(0, 24, 0, 24)
+    SearchButton.Position = UDim2.new(0, 664, 0, 14)
+    SearchButton.AnchorPoint = Vector2.new(0.5, 0.5)
+    SearchButton.Parent = Handler
+
+    local SearchIcon = Instance.new('ImageLabel')
+    SearchIcon.Image = 'rbxassetid://3926305904'
+    SearchIcon.ImageColor3 = Color3.fromRGB(180, 180, 180)
+    SearchIcon.BackgroundTransparency = 1
+    SearchIcon.ScaleType = Enum.ScaleType.Fit
+    SearchIcon.Size = UDim2.new(1, 0, 1, 0)
+    SearchIcon.BorderSizePixel = 0
+    SearchIcon.Parent = SearchButton
+
+    -- Search bar container (slides in from right when opened)
+    local SearchBarFrame = Instance.new('Frame')
+    SearchBarFrame.Name = 'SearchBarFrame'
+    SearchBarFrame.Size = UDim2.new(0, 0, 0, 22)
+    SearchBarFrame.Position = UDim2.new(0, 650, 0, 3)
+    SearchBarFrame.AnchorPoint = Vector2.new(1, 0)
+    SearchBarFrame.BackgroundColor3 = Color3.fromRGB(22, 28, 38)
+    SearchBarFrame.BorderSizePixel = 0
+    SearchBarFrame.ClipsDescendants = true
+    SearchBarFrame.Parent = Handler
+
+    local SearchBarCorner = Instance.new('UICorner')
+    SearchBarCorner.CornerRadius = UDim.new(0, 5)
+    SearchBarCorner.Parent = SearchBarFrame
+
+    local SearchBarStroke = Instance.new('UIStroke')
+    SearchBarStroke.Color = Color3.fromRGB(52, 66, 89)
+    SearchBarStroke.Transparency = 0.5
+    SearchBarStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    SearchBarStroke.Parent = SearchBarFrame
+
+    local SearchTextBox = Instance.new('TextBox')
+    SearchTextBox.Name = 'SearchTextBox'
+    SearchTextBox.PlaceholderText = 'Search modules...'
+    SearchTextBox.Text = ''
+    SearchTextBox.FontFace = Font.new('rbxasset://fonts/families/GothamSSm.json', Enum.FontWeight.SemiBold, Enum.FontStyle.Normal)
+    SearchTextBox.TextSize = 11
+    SearchTextBox.TextColor3 = Color3.fromRGB(220, 220, 220)
+    SearchTextBox.PlaceholderColor3 = Color3.fromRGB(100, 100, 100)
+    SearchTextBox.BackgroundTransparency = 1
+    SearchTextBox.BorderSizePixel = 0
+    SearchTextBox.Size = UDim2.new(1, -10, 1, 0)
+    SearchTextBox.Position = UDim2.new(0, 8, 0, 0)
+    SearchTextBox.TextXAlignment = Enum.TextXAlignment.Left
+    SearchTextBox.ClearTextOnFocus = false
+    SearchTextBox.Parent = SearchBarFrame
+
     local UIScale = Instance.new('UIScale')
     UIScale.Parent = Container    
     
     self._ui = March
+
+    -- Search open state and logic
+    local _searchOpen = false
+
+    local function performSearch(query)
+        query = query:lower()
+        for _, section in Handler.Sections:GetChildren() do
+            for _, module in section:GetChildren() do
+                if module.Name ~= 'Module' then continue end
+                local nameLabel = module:FindFirstChild('Header') and module.Header:FindFirstChild('ModuleName')
+                if nameLabel then
+                    if query == '' or nameLabel.Text:lower():find(query, 1, true) then
+                        module.Visible = true
+                    else
+                        module.Visible = false
+                    end
+                end
+            end
+        end
+    end
+
+    SearchTextBox:GetPropertyChangedSignal('Text'):Connect(function()
+        performSearch(SearchTextBox.Text)
+    end)
+
+    SearchButton.MouseButton1Click:Connect(function()
+        _searchOpen = not _searchOpen
+        if _searchOpen then
+            TweenService:Create(SearchIcon, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+                ImageColor3 = Color3.fromRGB(161, 208, 42)
+            }):Play()
+            TweenService:Create(SearchBarFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+                Size = UDim2.new(0, 200, 0, 22)
+            }):Play()
+            task.delay(0.35, function() SearchTextBox:CaptureFocus() end)
+        else
+            SearchTextBox.Text = ''
+            performSearch('')
+            TweenService:Create(SearchIcon, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+                ImageColor3 = Color3.fromRGB(180, 180, 180)
+            }):Play()
+            TweenService:Create(SearchBarFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+                Size = UDim2.new(0, 0, 0, 22)
+            }):Play()
+        end
+    end)
 
     local function on_drag(input: InputObject, process: boolean)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then 
