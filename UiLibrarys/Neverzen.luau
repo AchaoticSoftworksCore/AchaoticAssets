@@ -1149,7 +1149,13 @@ function NeverZen.new(config)
 
 	config.Name = config.Name or "NEVERZEN";
 	config.Keybind = config.Keybind or Enum.KeyCode.LeftControl;
-	config.Scale = config.Scale or UDim2.new(0, 611, 0, 396);
+
+	if not config.Scale then
+		local vp = workspace.CurrentCamera.ViewportSize;
+		local w = math.round(math.clamp(vp.X * 0.6, 480, 1200));
+		local h = math.round(math.clamp(vp.Y * 0.6, 300, 800));
+		config.Scale = UDim2.new(0, w, 0, h);
+	end;
 	config.Resizable = config.Resizable;
 	config.Shadow = config.Shadow or false;
 
@@ -1296,14 +1302,13 @@ function NeverZen.new(config)
 	HeaderText.BackgroundTransparency = 1.000
 	HeaderText.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	HeaderText.BorderSizePixel = 0
-	HeaderText.Position = UDim2.new(0, 10, 0, 3)
-	HeaderText.Size = UDim2.new(0, 160, 1, -20)
+	HeaderText.Position = UDim2.new(0, 10, 0, -55)
+	HeaderText.Size = UDim2.new(0, 100, 1, -10)
 	HeaderText.Font = Enum.Font.GothamBold
 	HeaderText.Text = config.Name;
 	HeaderText.TextColor3 = NeverZen.Theme.HeadText
 	HeaderText.TextScaled = false
-	HeaderText.TextXAlignment = Enum.TextXAlignment.Left
-	HeaderText.TextSize = 25.000
+	HeaderText.TextSize = 13.000
 	HeaderText.TextWrapped = true
 
 	table.insert(WindowSignal.FrameMemory.HeadText , HeaderText)
@@ -1329,15 +1334,15 @@ function NeverZen.new(config)
 	SubTitleText.BackgroundTransparency = 1.000
 	SubTitleText.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	SubTitleText.BorderSizePixel = 0
-	SubTitleText.AnchorPoint = Vector2.new(0, 0.5)
-	SubTitleText.Position = UDim2.new(0, 10, 0.7, 0)
-	SubTitleText.Size = UDim2.new(0, 160, 0, 15)
+	SubTitleText.AnchorPoint = Vector2.new(1, 0.5)
+	SubTitleText.Position = UDim2.new(0, 163, 0.5, 0)
+	SubTitleText.Size = UDim2.new(0, 100, 0, 15)
 	SubTitleText.Font = Enum.Font.GothamMedium
 	SubTitleText.Text = config.SubTitle or ""
 	SubTitleText.TextColor3 = NeverZen.Theme.HeadText
 	SubTitleText.TextSize = 12.000
 	SubTitleText.TextTransparency = 0.500
-	SubTitleText.TextXAlignment = Enum.TextXAlignment.Left
+	SubTitleText.TextXAlignment = Enum.TextXAlignment.Right
 	SubTitleText.ClipsDescendants = true
 
 	Frame.Parent = Header
