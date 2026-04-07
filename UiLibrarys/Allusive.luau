@@ -63,7 +63,7 @@ if not isfolder("AchaoticUI/AllusiveModified") then
     makefolder("AchaoticUI/AllusiveModified")
 end
 
-local Connections = {
+local Connections = setmetatable({
     disconnect = function(self, connection)
         if not self[connection] then
             return
@@ -81,10 +81,10 @@ local Connections = {
             value:Disconnect()
         end
     end
-}
+}, Connections)
 
 
-local Util = {
+local Util = setmetatable({
     map = function(self: any, value: number, in_minimum: number, in_maximum: number, out_minimum: number, out_maximum: number)
         return (value - in_minimum) * (out_maximum - out_minimum) / (in_maximum - in_minimum) + out_minimum
     end,
@@ -98,24 +98,20 @@ local Util = {
 
         return self:map(viewport_size_Y, 0, 2560, 8, 56)
     end
-}
+}, Util)
 
 
 local AcrylicBlur = {}
+AcrylicBlur.__index = AcrylicBlur
+
 
 function AcrylicBlur.new(object: GuiObject)
-    local self = {
+    local self = setmetatable({
         _object = object,
         _folder = nil,
         _frame = nil,
         _root = nil
-    }
-    
-    for key, value in pairs(AcrylicBlur) do
-        if key ~= 'new' then
-            self[key] = value
-        end
-    end
+    }, AcrylicBlur)
 
     self:setup()
 
