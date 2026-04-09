@@ -1152,6 +1152,8 @@ function NeverZen.new(config)
 	config.Scale = config.Scale or UDim2.new(0, 611, 0, 396);
 	config.Resizable = config.Resizable;
 	config.Shadow = config.Shadow or false;
+	config.ShowProfile = config.ShowProfile or false;
+	config.Acrylic = config.Acrylic or false;
 
 	local WindowSignal = {};
 
@@ -1462,6 +1464,7 @@ function NeverZen.new(config)
 	InformationFrame.BorderSizePixel = 0
 	InformationFrame.Position = UDim2.new(0, 0, 1, 55)
 	InformationFrame.Size = UDim2.new(1, 0, 0, 45)
+	InformationFrame.Visible = config.ShowProfile
 
 	task.delay(0.3,function()
 		TweenService:Create(InformationFrame,TweenInfo.new(1,Enum.EasingStyle.Quint,Enum.EasingDirection.InOut),{
