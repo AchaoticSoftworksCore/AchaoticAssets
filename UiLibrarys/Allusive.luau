@@ -18,19 +18,81 @@ getgenv().GG = {
     }
 }
 
--- Replace the SelectedLanguage with a reference to GG.Language
-local SelectedLanguage = GG.Language
+local SelectedLanguage = getgenv().GG.Language
+
+local UserInputService = cloneref(game:GetService('UserInputService'))
+local ContentProvider = cloneref(game:GetService('ContentProvider'))
+local TweenService = cloneref(game:GetService('TweenService'))
+local HttpService = cloneref(game:GetService('HttpService'))
+local TextService = cloneref(game:GetService('TextService'))
+local RunService = cloneref(game:GetService('RunService'))
+local Lighting = cloneref(game:GetService('Lighting'))
+local Players = cloneref(game:GetService('Players'))
+local CoreGui = cloneref(game:GetService('CoreGui'))
+local Debris = cloneref(game:GetService('Debris'))
+
+export type Services = {
+	UserInputService : UserInputService,
+	Players : Players,
+	ContentProvider : ContentProvider,
+	CoreGui : PlayerGui
+};
+
+local mouse = Players.LocalPlayer:GetMouse()
+
+local Library = {
+    _config = nil,
+
+    _choosing_keybind = false,
+    _device = nil,
+
+    _ui_open = true,
+    _ui_scale = 1,
+    _ui_loaded = false,
+    _ui = nil,
+
+    _dragging = false,
+    _drag_start = nil,
+    _container_position = nil
+}
+Library.__index = Library
+
+function Library:RandomString() : string
+	return string.char(math.random(60,120))..string.char(math.random(60,120))..string.char(math.random(60,120))..string.char(math.random(60,120))..string.char(math.random(60,120))..string.char(math.random(60,120))..string.char(math.random(60,120))..string.char(math.random(60,120))..string.char(math.random(60,120))..string.char(math.random(60,120))..string.char(math.random(60,120))..string.char(math.random(60,120))..string.char(math.random(60,120))..string.char(math.random(60,120))
+end;
 
 local UIACProtection = protect_gui or protectgui or (syn and syn.protect_gui) or function() end;
-local UIName = string.char(math.random(60,120))..string.char(math.random(60,120))..string.char(math.random(60,120))..string.char(math.random(60,120))..string.char(math.random(60,120))..string.char(math.random(60,120))..string.char(math.random(60,120))..string.char(math.random(60,120))..string.char(math.random(60,120))..string.char(math.random(60,120))..string.char(math.random(60,120))..string.char(math.random(60,120))..string.char(math.random(60,120))..string.char(math.random(60,120))
+local UIName = Library:RandomString()
 
 local SecureScreenGui = Instance.new('ScreenGui')
 SecureScreenGui.Name = UIName
-SecureScreenGui.Parent = game:GetService('CoreGui')
+SecureScreenGui.Parent = (gethui and gethui()) or CoreGui
 SecureScreenGui.ResetOnSpawn = false
 SecureScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
 UIACProtection(SecureScreenGui)
+
+function Library:Hook()
+	if hookfunc or hookfunction then
+		local hooking = hookfunc or hookfunction or function() end;
+		local newCclosure = newcclosure or function() end;
+		local getconnections = getconnections or function() return {} end;
+
+		hooking(game:GetService('ContentProvider').PreloadAsync,function()
+			return 1;
+		end);
+
+		hooking(game:GetService('ContentProvider').Preload,function()
+			return 2;
+		end);
+
+		hooking(game:GetService('ContentProvider').GetAssetFetchStatus,function()
+			return 3;
+		end);
+	end;
+end;
+
+Library:Hook()
 
 function convertStringToTable(inputString)
     local result = {}
@@ -45,19 +107,6 @@ end
 function convertTableToString(inputTable)
     return table.concat(inputTable, ", ")
 end
-
-local UserInputService = cloneref(game:GetService('UserInputService'))
-local ContentProvider = cloneref(game:GetService('ContentProvider'))
-local TweenService = cloneref(game:GetService('TweenService'))
-local HttpService = cloneref(game:GetService('HttpService'))
-local TextService = cloneref(game:GetService('TextService'))
-local RunService = cloneref(game:GetService('RunService'))
-local Lighting = cloneref(game:GetService('Lighting'))
-local Players = cloneref(game:GetService('Players'))
-local CoreGui = cloneref(game:GetService('CoreGui'))
-local Debris = cloneref(game:GetService('Debris'))
-
-local mouse = Players.LocalPlayer:GetMouse()
 
 if not isfolder("AchaoticUI/AllusiveModified") then
     makefolder("AchaoticUI/AllusiveModified")
@@ -330,24 +379,7 @@ local Config = setmetatable({
     end
 }, Config)
 
-
-local Library = {
-    _config = Config:load(game.GameId),
-
-    _choosing_keybind = false,
-    _device = nil,
-
-    _ui_open = true,
-    _ui_scale = 1,
-    _ui_loaded = false,
-    _ui = nil,
-
-    _dragging = false,
-    _drag_start = nil,
-    _container_position = nil
-}
-Library.__index = Library
-
+Library._config = Config:load(game.GameId)
 
 function Library.new(config: table)
     local self = setmetatable({
@@ -356,18 +388,17 @@ function Library.new(config: table)
     }, Library)
 
     local currentconfig = config or {
-        title = "March",
-        PrimaryColor = Color3.fromRGB(161, 208, 42),
+        title = config.title or "Achaotic",
+        PrimaryColor = config.PrimaryColor or Color3.fromRGB(161, 208, 42),
     }
     
     self:create_ui(currentconfig)
-
     return self
 end
 
 -- Create Notification Container
 local NotificationContainer = Instance.new("Frame")
-NotificationContainer.Name = "RobloxCoreGuis"
+NotificationContainer.Name = "NotificationContainer"
 NotificationContainer.Size = UDim2.new(0, 300, 0, 0)  -- Fixed width (300px), dynamic height (Y)
 NotificationContainer.Position = UDim2.new(0.8, 0, 0, 10)  -- Right side, offset by 10 from top
 NotificationContainer.BackgroundTransparency = 1
@@ -531,7 +562,7 @@ function Library:create_ui(config: table)
     Container.ClipsDescendants = true
     Container.BorderColor3 = Color3.fromRGB(0, 0, 0)
     Container.AnchorPoint = Vector2.new(0.5, 0.5)
-    Container.Name = 'Container'
+    Container.Name = "Container"
     Container.BackgroundTransparency = 0.05000000074505806
     Container.BackgroundColor3 = Color3.fromRGB(12, 13, 15)
     Container.Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -552,7 +583,7 @@ function Library:create_ui(config: table)
     
     local Handler = Instance.new('Frame')
     Handler.BackgroundTransparency = 1
-    Handler.Name = 'Handler'
+    Handler.Name = "Handler"
     Handler.BorderColor3 = Color3.fromRGB(0, 0, 0)
     Handler.Size = UDim2.new(0, 698, 0, 479)
     Handler.BorderSizePixel = 0
