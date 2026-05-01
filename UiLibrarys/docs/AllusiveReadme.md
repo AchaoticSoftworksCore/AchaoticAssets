@@ -251,11 +251,7 @@ Library.SendNotification({
 ```lua
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/AchaoticSoftworksCore/AchaoticAssets/refs/heads/main/UiLibrarys/Allusive.luau"))()
 
-local UIConfig = {
- title = "Achaotic"
-}
-
-local main = Library.new(UIConfig)
+local main = Library.new()
 
 -- Tabs
 local combat_tab = main:create_tab("Combat", "rbxassetid://76499042599127")
