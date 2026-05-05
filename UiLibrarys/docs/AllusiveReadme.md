@@ -22,7 +22,12 @@ Load the library with:
 
 ```lua
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/AchaoticSoftworksCore/AchaoticAssets/refs/heads/main/UiLibrarys/Allusive.luau"))()
-local main = Library.new()
+local UIConfig = {
+ title = "my script", 
+ PrimaryColor = Color3.new(1,1,1) 
+}
+
+local main = Library.new(UIConfig)
 
 main:load() -- Initialize the UI
 ```
@@ -252,7 +257,7 @@ Library.SendNotification({
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/AchaoticSoftworksCore/AchaoticAssets/refs/heads/main/UiLibrarys/Allusive.luau"))()
 
 local UIConfig = {
- title = "277", 
+ title = "my script", 
 PrimaryColor = Color3.new(1, 1,1) 
 }
 
